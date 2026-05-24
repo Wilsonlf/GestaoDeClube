@@ -1,7 +1,8 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/database');
 
-const Usuario = sequelize.define('Usuario', {
+const Material = sequelize.define('Material', {
+
     id: {
         type: DataTypes.INTEGER,
         autoIncrement: true,
@@ -13,16 +14,11 @@ const Usuario = sequelize.define('Usuario', {
         allowNull: false
     },
 
-    email: {
-        type: DataTypes.STRING,
-        allowNull: false,
-        unique: true
-    },
-
-    senha: {
-        type: DataTypes.STRING,
+    quantidade: {
+        type: DataTypes.INTEGER,
         allowNull: false
     }
+
 });
 
-module.exports = Usuario;
+module.exports = Material;

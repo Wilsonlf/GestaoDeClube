@@ -1,3 +1,11 @@
+require('./src/models/Usuario');
+require('./src/models/SocioTorcedor');
+require('./src/models/Jogador');
+require('./src/models/Noticia');
+require('./src/models/Ingresso');
+require('./src/models/Pagamento');
+require('./src/models/Material');
+
 const express = require('express');
 const app = express();
 

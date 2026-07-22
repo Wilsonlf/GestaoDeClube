@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Esporte Clube Águia Negra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<div class="topbar">
+  <div class="wrap">
+    <span>Esporte Clube Águia Negra · Rio Brilhante, MS</span>
+    <span class="social">
+      <a href="#" aria-label="Instagram">Instagram</a>
+      <a href="#" aria-label="Facebook">Facebook</a>
+      <a href="#" aria-label="YouTube">YouTube</a>
+    </span>
+  </div>
+</div>
+
+<header class="nav">
+  <div class="wrap">
+    <ul class="nav-links">
+      <li><a href="/" aria-current="page">Clube</a></li>
+      <li><a href="#noticias">Notícias</a></li>
+      <li><a href="#elenco">Elenco</a></li>
+    </ul>
+    <div class="nav-crest" aria-hidden="true">ECAN</div>
+    <ul class="nav-links" style="justify-content:flex-end;">
+      <li><a href="/estadio">Estádio</a></li>
+      <li><a href="/ingressos">Ingressos</a></li>
+      <li><a href="/planos">Sócio</a></li>
+      <li><a href="/login">Login</a></li>
+    </ul>
+    <button class="nav-toggle" aria-label="Abrir menu" aria-expanded="false">☰</button>
+  </div>
+</header>
+
+<main>
+
+  <!-- HERO: jogo em destaque + classificação, como no mockup -->
+  <section class="section" style="padding-top:32px; padding-bottom:32px;">
+    <div class="wrap hero-grid">
+      <div class="hero-highlight">
+        <span class="eyebrow">Último jogo</span>
+        <h1 style="font-size:26px; margin-top:6px;">Águia Negra estreia em casa com empate emocionante</h1>
+        <p class="muted" style="margin-top:10px;">Time do técnico Ederson Passos segurou o resultado nos minutos finais diante de mais de 2 mil torcedores no Ninho da Águia.</p>
+        <a href="#noticias" class="btn btn-ghost" style="margin-top:16px;">Ler matéria completa</a>
+      </div>
+
+      <aside class="card next-match">
+        <span class="eyebrow">Campeonato Sul-Mato-Grossense</span>
+        <div class="match-row">
+          <div class="match-team">
+            <div class="crest-sm">ECAN</div>
+            <strong>Águia Negra</strong>
+          </div>
+          <div class="match-date">
+            <strong>05/02</strong>
+            <span class="muted">19:30h</span>
+          </div>
+          <div class="match-team">
+            <div class="crest-sm crest-sm--alt">CVI</div>
+            <strong>Comercial-MS</strong>
+          </div>
+        </div>
+
+        <h4 style="font-size:13px; margin-top:20px; margin-bottom:10px;">Classificação</h4>
+        <table class="standings">
+          <thead>
+            <tr><th>#</th><th>Clube</th><th>P</th></tr>
+          </thead>
+          <tbody>
+            <tr class="is-club"><td>1</td><td>Águia Negra</td><td>18</td></tr>
+            <tr><td>2</td><td>Comercial-MS</td><td>16</td></tr>
+            <tr><td>3</td><td>Coxim FC</td><td>14</td></tr>
+            <tr><td>4</td><td>Costa Rica EC</td><td>11</td></tr>
+            <tr><td>5</td><td>Operário SM</td><td>9</td></tr>
+          </tbody>
+        </table>
+      </aside>
+    </div>
+  </section>
+
+  <!-- BANNER SÓCIO — corte de pennant como elemento assinatura -->
+  <section class="pennant-cut">
+    <div class="wrap" style="display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;">
+      <div>
+        <h2 style="font-size:20px;">Seja sócio torcedor Águia Negra</h2>
+        <p style="margin:4px 0 0; opacity:.9;">Prioridade nos ingressos e descontos na loja oficial.</p>
+      </div>
+      <a href="/planos" class="btn btn-gold">Ver planos</a>
+    </div>
+  </section>
+
+  <!-- ELENCO -->
+  <section class="section" id="elenco">
+    <div class="wrap">
+      <span class="eyebrow">Temporada 2026</span>
+      <h2 style="font-size:24px; margin-top:6px; margin-bottom:22px;">Nosso elenco</h2>
+      <div class="squad-grid">
+        <article class="player-card">
+          <div class="player-photo">2026</div>
+          <strong>Rafael Costa</strong>
+          <span class="muted">Atacante</span>
+        </article>
+        <article class="player-card">
+          <div class="player-photo">2026</div>
+          <strong>Bruno Lima</strong>
+          <span class="muted">Zagueiro</span>
+        </article>
+        <article class="player-card">
+          <div class="player-photo">2026</div>
+          <strong>Lucas Oliveira</strong>
+          <span class="muted">Lateral-direito</span>
+        </article>
+        <article class="player-card">
+          <div class="player-photo">2026</div>
+          <strong>Pedro Henrique</strong>
+          <span class="muted">Meia</span>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <!-- NOTÍCIAS -->
+  <section class="section" id="noticias" style="padding-top:0;">
+    <div class="wrap">
+      <span class="eyebrow">Fique por dentro</span>
+      <h2 style="font-size:24px; margin-top:6px; margin-bottom:22px;">Últimas notícias</h2>
+      <div class="news-grid">
+        <article class="card">
+          <span class="muted" style="font-size:12px;">03/02/2026</span>
+          <h3 style="font-size:16px; text-transform:none; margin-top:6px;">Reforço de peso assina contrato até 2027</h3>
+        </article>
+        <article class="card">
+          <span class="muted" style="font-size:12px;">30/01/2026</span>
+          <h3 style="font-size:16px; text-transform:none; margin-top:6px;">Ingressos para a próxima rodada já estão à venda</h3>
+        </article>
+        <article class="card">
+          <span class="muted" style="font-size:12px;">28/01/2026</span>
+          <h3 style="font-size:16px; text-transform:none; margin-top:6px;">Categoria de base conquista título estadual</h3>
+        </article>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div>
+      <div class="sponsors">
+        <span>Patrocinadores</span>
+        <strong>Sicredi</strong>
+        <strong>Airpon</strong>
+        <strong>Lojas MM</strong>
+        <strong>FFMS</strong>
+      </div>
+    </div>
+    <div class="contact">
+      contato@ecan.com.br<br />
+      (67) 3000-0000
+    </div>
+  </div>
+  <div class="legal">© 2026 Esporte Clube Águia Negra — Fundado em 1972</div>
+</footer>
+
+<script src="/js/main.js"></script>
+</body>
+</html>

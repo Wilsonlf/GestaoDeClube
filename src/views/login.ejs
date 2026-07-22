@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Entrar · Águia Negra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body class="login-body">
+
+<main class="login-screen">
+  <form class="login-card" id="login-form" novalidate>
+    <div class="nav-crest" style="width:64px; height:64px; font-size:20px; margin:0 auto 14px;">ECAN</div>
+    <h1 style="font-size:18px;">Esporte Clube Águia Negra</h1>
+    <p class="muted" style="margin:4px 0 22px; font-size:13px;">Acesse sua conta</p>
+
+    <label class="field">
+      <span>E-mail</span>
+      <input type="email" id="email" name="email" placeholder="voce@email.com" required />
+    </label>
+
+    <label class="field">
+      <span>Senha</span>
+      <div class="field-with-action">
+        <input type="password" id="senha" name="senha" placeholder="••••••••" required />
+        <button type="button" data-toggle-senha class="field-action">Mostrar</button>
+      </div>
+    </label>
+
+    <p id="login-feedback" class="muted" style="font-size:13px;" hidden></p>
+
+    <button type="submit" class="btn btn-primary btn-block" style="margin-top:6px;">Entrar</button>
+
+    <p class="login-alt">Não possui conta? <a href="/planos">Crie sua conta</a></p>
+    <p class="login-back"><a href="/">← Voltar ao site</a></p>
+  </form>
+</main>
+
+<script src="/js/main.js"></script>
+</body>
+</html>

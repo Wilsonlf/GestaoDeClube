@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Dashboard · Painel Administrativo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body class="admin-body">
+<div class="admin-shell">
+  <%- include('../partials/admin-sidebar', { active: 'dashboard' }) %>
+
+  <main class="admin-main">
+    <%- include('../partials/admin-topbar') %>
+
+    <div class="admin-content">
+      <div class="admin-content-head">
+        <h1>Dashboard</h1>
+        <p class="muted" style="font-size:13px;">Visão geral do clube</p>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">Sócios ativos</div>
+          <div class="kpi-value"><%= typeof totalSocios !== 'undefined' ? totalSocios : '1.245' %></div>
+        </div>
+        <div class="kpi-card kpi-gold">
+          <div class="kpi-label">Receita de ingressos (mês)</div>
+          <div class="kpi-value">R$ <%= typeof receitaIngressos !== 'undefined' ? receitaIngressos : '179mil' %></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Despesas (mês)</div>
+          <div class="kpi-value">R$ <%= typeof despesasMes !== 'undefined' ? despesasMes : '176mil' %></div>
+        </div>
+        <div class="kpi-card kpi-danger">
+          <div class="kpi-label">Pendências de pagamento</div>
+          <div class="kpi-value"><%= typeof pendencias !== 'undefined' ? pendencias : '2' %></div>
+        </div>
+      </div>
+
+      <div class="report-grid">
+        <div class="card">
+          <h3 style="font-size:13px; text-transform:none; margin-bottom:14px;">Notícias recentes</h3>
+          <div class="data-table-wrap">
+            <table class="data-table">
+              <thead><tr><th>Título</th><th>Data</th></tr></thead>
+              <tbody>
+                <% (typeof noticiasRecentes !== 'undefined' ? noticiasRecentes : [
+                  { titulo: 'Águia Negra estreia em casa com empate emocionante', data: '03/02/2026' },
+                  { titulo: 'Reforço de peso assina contrato até 2027', data: '02/02/2026' },
+                  { titulo: 'Ingressos para próxima rodada já estão à venda', data: '30/01/2026' }
+                ]).forEach(function(n) { %>
+                <tr>
+                  <td class="emphasis"><%= n.titulo %></td>
+                  <td><%= n.data %></td>
+                </tr>
+                <% }) %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="font-size:13px; text-transform:none; margin-bottom:14px;">Próximos passos</h3>
+          <p class="muted" style="font-size:13px; line-height:1.6;">
+            Este painel já está pronto para receber dados reais do banco — as variáveis
+            <code>totalSocios</code>, <code>receitaIngressos</code>, <code>despesasMes</code>,
+            <code>pendencias</code> e <code>noticiasRecentes</code> vêm do controller.
+          </p>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

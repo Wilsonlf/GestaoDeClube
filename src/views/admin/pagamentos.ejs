@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Pagamentos · Painel Administrativo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body class="admin-body">
+<div class="admin-shell">
+  <%- include('../partials/admin-sidebar', { active: 'pagamentos' }) %>
+
+  <main class="admin-main">
+    <%- include('../partials/admin-topbar') %>
+
+    <div class="admin-content">
+      <div class="admin-content-head">
+        <div>
+          <h1>Pagamentos</h1>
+          <p class="muted" style="font-size:13px; margin-top:4px;">Registro financeiro do clube</p>
+        </div>
+        <a href="#" class="btn btn-primary">+ Novo pagamento</a>
+      </div>
+
+      <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);">
+        <div class="kpi-card">
+          <div class="kpi-label">Total do mês</div>
+          <div class="kpi-value">R$ <%= typeof totalMes !== 'undefined' ? totalMes : '176.800' %></div>
+        </div>
+        <div class="kpi-card kpi-gold">
+          <div class="kpi-label">Pagos</div>
+          <div class="kpi-value">R$ <%= typeof totalPagos !== 'undefined' ? totalPagos : '165.800' %></div>
+        </div>
+        <div class="kpi-card kpi-danger">
+          <div class="kpi-label">Pendentes</div>
+          <div class="kpi-value">R$ <%= typeof totalPendentes !== 'undefined' ? totalPendentes : '11.000' %></div>
+        </div>
+      </div>
+
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>Fornecedor</th><th>Categoria</th><th>Valor</th><th>Data</th><th>Status</th></tr>
+          </thead>
+          <tbody>
+            <%
+            var lista = typeof pagamentos !== 'undefined' ? pagamentos : [
+              { fornecedor: 'Empresa de Energia', categoria: 'Despesa Fixa', valor: '8.500', data: '01/02/2026', status: 'pago' },
+              { fornecedor: 'Fornecedor Materiais', categoria: 'Material Esportivo', valor: '12.300', data: '03/02/2026', status: 'pago' },
+              { fornecedor: 'Empresa de Transporte', categoria: 'Logística', valor: '4.200', data: '06/02/2026', status: 'pendente' },
+              { fornecedor: 'Folha de Pagamento', categoria: 'Salários', valor: '145.000', data: '05/02/2026', status: 'pago' },
+              { fornecedor: 'Hospital Parceiro', categoria: 'Saúde', valor: '6.800', data: '07/02/2026', status: 'atrasado' }
+            ];
+            var badgeClasse = { pago: 'badge-success', pendente: 'badge-pending', atrasado: 'badge-danger' };
+            lista.forEach(function(p) { %>
+            <tr>
+              <td class="emphasis"><%= p.fornecedor %></td>
+              <td><%= p.categoria %></td>
+              <td>R$ <%= p.valor %></td>
+              <td><%= p.data %></td>
+              <td><span class="badge <%= badgeClasse[p.status] %>"><%= p.status %></span></td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

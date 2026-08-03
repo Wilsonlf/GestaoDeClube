@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Elenco · Painel Administrativo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body class="admin-body">
+<div class="admin-shell">
+  <%- include('../partials/admin-sidebar', { active: 'elenco' }) %>
+
+  <main class="admin-main">
+    <%- include('../partials/admin-topbar') %>
+
+    <div class="admin-content">
+      <div class="admin-content-head">
+        <div>
+          <h1>Elenco</h1>
+          <p class="muted" style="font-size:13px; margin-top:4px;">Cadastro de jogadores</p>
+        </div>
+        <a href="#" class="btn btn-primary">+ Novo jogador</a>
+      </div>
+
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>Foto</th><th>#</th><th>Nome</th><th>Posição</th><th>Ações</th></tr>
+          </thead>
+          <tbody>
+            <%
+            var lista = typeof jogadores !== 'undefined' ? jogadores : [
+              { numero: 9, nome: 'Carlos Silva', posicao: 'Atacante' },
+              { numero: 10, nome: 'Pedro Henrique', posicao: 'Meia' },
+              { numero: 2, nome: 'Lucas Oliveira', posicao: 'Lateral Direito' },
+              { numero: 11, nome: 'Rafael Costa', posicao: 'Atacante' },
+              { numero: 1, nome: 'João Marcos', posicao: 'Goleiro' },
+              { numero: 4, nome: 'Bruno Lima', posicao: 'Zagueiro' },
+              { numero: 5, nome: 'Diego Souza', posicao: 'Volante' },
+              { numero: 8, nome: 'Felipe Alves', posicao: 'Meia' }
+            ];
+            lista.forEach(function(j) { %>
+            <tr>
+              <td><div class="player-photo" style="width:36px; height:36px; margin:0; border-radius:50%;"></div></td>
+              <td><%= j.numero %></td>
+              <td class="emphasis"><%= j.nome %></td>
+              <td><%= j.posicao %></td>
+              <td class="row-actions"><a href="#" title="Editar">✏️</a><a href="#" title="Excluir">🗑️</a></td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

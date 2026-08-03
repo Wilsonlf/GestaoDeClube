@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sócios · Painel Administrativo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body class="admin-body">
+<div class="admin-shell">
+  <%- include('../partials/admin-sidebar', { active: 'socios' }) %>
+
+  <main class="admin-main">
+    <%- include('../partials/admin-topbar') %>
+
+    <div class="admin-content">
+      <div class="admin-content-head">
+        <div>
+          <h1>Sócios Torcedores</h1>
+          <p class="muted" style="font-size:13px; margin-top:4px;">Cadastro e gestão de sócios</p>
+        </div>
+        <a href="#" class="btn btn-primary">+ Novo sócio</a>
+      </div>
+
+      <div class="toolbar" style="margin-bottom:16px;">
+        <input type="search" class="search-input" placeholder="Buscar por nome ou CPF" />
+      </div>
+
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Nome</th><th>CPF</th><th>E-mail</th><th>Plano</th><th>Status</th><th>Sócio desde</th><th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <%
+            var lista = typeof socios !== 'undefined' ? socios : [
+              { nome: 'Maria Souza', cpf: '123.456.789-00', email: 'maria@email.com', plano: 'Voo Supremo', status: 'ativo', desde: '10/01/2024' },
+              { nome: 'João Pereira', cpf: '234.567.890-11', email: 'joao@email.com', plano: 'Asas Negras', status: 'ativo', desde: '22/03/2024' },
+              { nome: 'Ana Lima', cpf: '345.678.901-22', email: 'ana@email.com', plano: 'Ninho', status: 'pendente', desde: '05/06/2024' },
+              { nome: 'Carlos Mendes', cpf: '456.789.012-33', email: 'carlos@email.com', plano: 'Asas Negras', status: 'ativo', desde: '12/08/2024' },
+              { nome: 'Beatriz Rocha', cpf: '567.890.123-44', email: 'bia@email.com', plano: 'Ninho', status: 'inativo', desde: '01/12/2023' },
+              { nome: 'Fernando Dias', cpf: '678.901.234-55', email: 'fernando@email.com', plano: 'Voo Supremo', status: 'ativo', desde: '16/09/2024' }
+            ];
+            var badgeClasse = { ativo: 'badge-success', pendente: 'badge-pending', inativo: 'badge-danger' };
+            lista.forEach(function(s) { %>
+            <tr>
+              <td class="emphasis"><%= s.nome %></td>
+              <td><%= s.cpf %></td>
+              <td><%= s.email %></td>
+              <td><%= s.plano %></td>
+              <td><span class="badge <%= badgeClasse[s.status] %>"><%= s.status %></span></td>
+              <td><%= s.desde %></td>
+              <td class="row-actions"><a href="#" title="Editar">✏️</a><a href="#" title="Excluir">🗑️</a></td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

@@ -12,6 +12,8 @@ const app = express();
 
 const sequelize = require('./src/config/database');
 const publicRoutes = require('./src/routes/public.routes');
+const adminRoutes = require('./src/routes/admin.routes');
+const autenticar = require('./src/middlewares/auth');
 
 app.use(express.json());
 
@@ -24,6 +26,9 @@ app.use(express.static(path.join(__dirname, 'src', 'public')));
 
 // Rotas do site público (Home, Planos, Login, Estádio, Ingressos)
 app.use('/', publicRoutes);
+
+// Rotas do painel administrativo (protegidas pelo middleware de autenticação)
+app.use('/admin', autenticar, adminRoutes);
 
 sequelize.sync()
     .then(() => {

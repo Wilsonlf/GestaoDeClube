@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Relatórios · Painel Administrativo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body class="admin-body">
+<div class="admin-shell">
+  <%- include('../partials/admin-sidebar', { active: 'relatorios' }) %>
+
+  <main class="admin-main">
+    <%- include('../partials/admin-topbar') %>
+
+    <div class="admin-content">
+      <div class="admin-content-head">
+        <div>
+          <h1>Relatórios</h1>
+          <p class="muted" style="font-size:13px; margin-top:4px;">Análise consolidada do clube</p>
+        </div>
+        <a href="#" class="btn btn-ghost">⬇ Exportar PDF</a>
+      </div>
+
+      <div class="kpi-grid">
+        <div class="kpi-card">
+          <div class="kpi-label">Sócios ativos</div>
+          <div class="kpi-value"><%= typeof totalSocios !== 'undefined' ? totalSocios : '1.245' %></div>
+        </div>
+        <div class="kpi-card kpi-gold">
+          <div class="kpi-label">Receita de ingressos</div>
+          <div class="kpi-value">R$ <%= typeof receitaIngressos !== 'undefined' ? receitaIngressos : '179mil' %></div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-label">Despesas (mês)</div>
+          <div class="kpi-value">R$ <%= typeof despesasMes !== 'undefined' ? despesasMes : '176mil' %></div>
+        </div>
+        <div class="kpi-card kpi-danger">
+          <div class="kpi-label">Pendências</div>
+          <div class="kpi-value"><%= typeof pendencias !== 'undefined' ? pendencias : '2' %></div>
+        </div>
+      </div>
+
+      <div class="report-grid">
+        <div class="card">
+          <h3 style="font-size:13px; text-transform:none; margin-bottom:6px;">Receita de ingressos (últimos meses)</h3>
+          <%
+          var receitaMeses = typeof receitaPorMes !== 'undefined' ? receitaPorMes : [
+            { mes: 'Set', valor: 28 }, { mes: 'Out', valor: 22 }, { mes: 'Nov', valor: 30 },
+            { mes: 'Dez', valor: 18 }, { mes: 'Jan', valor: 40 }, { mes: 'Fev', valor: 48 }
+          ];
+          var maxValor = Math.max.apply(null, receitaMeses.map(function(m){ return m.valor; }));
+          %>
+          <div class="bar-chart">
+            <% receitaMeses.forEach(function(m) { %>
+            <div class="bar">
+              <span class="stem" style="height:<%= Math.round((m.valor / maxValor) * 100) %>%;"></span>
+              <label><%= m.mes %></label>
+            </div>
+            <% }) %>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3 style="font-size:13px; text-transform:none; margin-bottom:6px;">Distribuição de sócios por plano</h3>
+          <%
+          var planos = typeof distribuicaoPlanos !== 'undefined' ? distribuicaoPlanos : [
+            { nome: 'Ninho', pct: 41, cor: '#a01421' },
+            { nome: 'Asas Negras', pct: 38, cor: '#c9a24a' },
+            { nome: 'Voo Supremo', pct: 21, cor: '#7d7b76' }
+          ];
+          var acumulado = 0;
+          var stops = planos.map(function(p) {
+            var inicio = acumulado;
+            acumulado += p.pct;
+            return p.cor + ' ' + inicio + '% ' + acumulado + '%';
+          }).join(', ');
+          %>
+          <div class="pie" style="background: conic-gradient(<%= stops %>);"></div>
+          <div class="pie-legend">
+            <% planos.forEach(function(p) { %>
+            <span><span class="dot" style="background:<%= p.cor %>;"></span><%= p.nome %> — <%= p.pct %>%</span>
+            <% }) %>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

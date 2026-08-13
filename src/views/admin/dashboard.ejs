@@ -54,7 +54,7 @@
                 ]).forEach(function(n) { %>
                 <tr>
                   <td class="emphasis"><%= n.titulo %></td>
-                  <td><%= n.data %></td>
+                  <td><%= n.createdAt ? new Date(n.createdAt).toLocaleDateString('pt-BR') : (n.data || '—') %></td>
                 </tr>
                 <% }) %>
               </tbody>
@@ -65,9 +65,6 @@
         <div class="card">
           <h3 style="font-size:13px; text-transform:none; margin-bottom:14px;">Próximos passos</h3>
           <p class="muted" style="font-size:13px; line-height:1.6;">
-            Este painel já está pronto para receber dados reais do banco — as variáveis
-            <code>totalSocios</code>, <code>receitaIngressos</code>, <code>despesasMes</code>,
-            <code>pendencias</code> e <code>noticiasRecentes</code> vêm do controller.
           </p>
         </div>
       </div>

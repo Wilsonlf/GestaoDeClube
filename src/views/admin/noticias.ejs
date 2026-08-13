@@ -27,21 +27,17 @@
       <div class="data-table-wrap">
         <table class="data-table">
           <thead>
-            <tr><th>Capa</th><th>Título</th><th>Data</th><th>Ações</th></tr>
+            <tr><th>Título</th><th>Conteúdo</th><th>Publicada em</th><th>Ações</th></tr>
           </thead>
           <tbody>
-            <%
-            var lista = typeof noticias !== 'undefined' ? noticias : [
-              { titulo: 'Águia Negra estreia em casa com empate emocionante', data: '03/02/2026' },
-              { titulo: 'Reforço de peso assina contrato até 2027', data: '02/02/2026' },
-              { titulo: 'Ingressos para próxima rodada já estão à venda', data: '30/01/2026' },
-              { titulo: 'Categoria de base conquista título estadual', data: '28/01/2026' }
-            ];
-            lista.forEach(function(n) { %>
+            <% if (!noticias || noticias.length === 0) { %>
+            <tr><td colspan="4" class="muted">Nenhuma notícia cadastrada ainda.</td></tr>
+            <% } %>
+            <% (noticias || []).forEach(function(n) { %>
             <tr>
-              <td><div class="player-photo" style="width:56px; height:38px; margin:0; border-radius:4px;"></div></td>
               <td class="emphasis"><%= n.titulo %></td>
-              <td><%= n.data %></td>
+              <td><%= n.conteudo.length > 60 ? n.conteudo.slice(0, 60) + '…' : n.conteudo %></td>
+              <td><%= n.createdAt ? new Date(n.createdAt).toLocaleDateString('pt-BR') : '—' %></td>
               <td class="row-actions"><a href="#" title="Editar">✏️</a><a href="#" title="Excluir">🗑️</a></td>
             </tr>
             <% }) %>

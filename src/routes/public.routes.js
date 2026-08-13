@@ -21,4 +21,8 @@ router.get('/ingressos', (req, res) => {
     res.render('ingressos');
 });
 
+router.get('/cadastro', (req, res) => {
+    res.render('cadastro');
+});
+
 module.exports = router;

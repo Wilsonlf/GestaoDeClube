@@ -24,43 +24,20 @@
         <a href="#" class="btn btn-primary">+ Novo pagamento</a>
       </div>
 
-      <div class="kpi-grid" style="grid-template-columns:repeat(3,1fr);">
-        <div class="kpi-card">
-          <div class="kpi-label">Total do mês</div>
-          <div class="kpi-value">R$ <%= typeof totalMes !== 'undefined' ? totalMes : '176.800' %></div>
-        </div>
-        <div class="kpi-card kpi-gold">
-          <div class="kpi-label">Pagos</div>
-          <div class="kpi-value">R$ <%= typeof totalPagos !== 'undefined' ? totalPagos : '165.800' %></div>
-        </div>
-        <div class="kpi-card kpi-danger">
-          <div class="kpi-label">Pendentes</div>
-          <div class="kpi-value">R$ <%= typeof totalPendentes !== 'undefined' ? totalPendentes : '11.000' %></div>
-        </div>
-      </div>
-
       <div class="data-table-wrap">
         <table class="data-table">
           <thead>
-            <tr><th>Fornecedor</th><th>Categoria</th><th>Valor</th><th>Data</th><th>Status</th></tr>
+            <tr><th>Descrição</th><th>Valor</th><th>Data do pagamento</th></tr>
           </thead>
           <tbody>
-            <%
-            var lista = typeof pagamentos !== 'undefined' ? pagamentos : [
-              { fornecedor: 'Empresa de Energia', categoria: 'Despesa Fixa', valor: '8.500', data: '01/02/2026', status: 'pago' },
-              { fornecedor: 'Fornecedor Materiais', categoria: 'Material Esportivo', valor: '12.300', data: '03/02/2026', status: 'pago' },
-              { fornecedor: 'Empresa de Transporte', categoria: 'Logística', valor: '4.200', data: '06/02/2026', status: 'pendente' },
-              { fornecedor: 'Folha de Pagamento', categoria: 'Salários', valor: '145.000', data: '05/02/2026', status: 'pago' },
-              { fornecedor: 'Hospital Parceiro', categoria: 'Saúde', valor: '6.800', data: '07/02/2026', status: 'atrasado' }
-            ];
-            var badgeClasse = { pago: 'badge-success', pendente: 'badge-pending', atrasado: 'badge-danger' };
-            lista.forEach(function(p) { %>
+            <% if (!pagamentos || pagamentos.length === 0) { %>
+            <tr><td colspan="3" class="muted">Nenhum pagamento registrado ainda.</td></tr>
+            <% } %>
+            <% (pagamentos || []).forEach(function(p) { %>
             <tr>
-              <td class="emphasis"><%= p.fornecedor %></td>
-              <td><%= p.categoria %></td>
-              <td>R$ <%= p.valor %></td>
-              <td><%= p.data %></td>
-              <td><span class="badge <%= badgeClasse[p.status] %>"><%= p.status %></span></td>
+              <td class="emphasis"><%= p.descricao %></td>
+              <td>R$ <%= Number(p.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) %></td>
+              <td><%= p.data_pagamento ? new Date(p.data_pagamento).toLocaleDateString('pt-BR') : '—' %></td>
             </tr>
             <% }) %>
           </tbody>

@@ -19,6 +19,9 @@ const Material = sequelize.define('Material', {
         allowNull: false
     }
 
+}, {
+    tableName: 'materiais',
+    freezeTableName: true
 });
 
 module.exports = Material;

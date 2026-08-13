@@ -1,6 +1,6 @@
 <div class="admin-topbar">
   <div class="admin-user">
-    <div class="avatar">A</div>
-    <span><%= typeof usuarioLogado !== 'undefined' ? usuarioLogado : 'Admin Master' %></span>
+    <div class="avatar"><%= (usuarioLogado || 'A').charAt(0).toUpperCase() %></div>
+    <span><%= usuarioLogado || 'Admin' %></span>
   </div>
 </div>

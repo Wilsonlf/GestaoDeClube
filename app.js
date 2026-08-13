@@ -5,41 +5,48 @@ require('./src/models/Noticia');
 require('./src/models/Ingresso');
 require('./src/models/Pagamento');
 require('./src/models/Material');
+require('./src/models/Index');
+
 
 const express = require('express');
 const path = require('path');
+const cookieParser = require('cookie-parser');
 const app = express();
 
 const sequelize = require('./src/config/database');
 const publicRoutes = require('./src/routes/public.routes');
+const authRoutes = require('./src/routes/auth.routes');
 const adminRoutes = require('./src/routes/admin.routes');
-const autenticar = require('./src/middlewares/auth');
+const verificarLogin = require('./src/middlewares/verificarLogin');
+const { autenticar, apenasAdmin } = require('./src/middlewares/auth');
 
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.use(verificarLogin);
 
-// Motor de views: os arquivos .ejs ficam em src/views
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'src', 'views'));
 
-// Arquivos estáticos (css, js, imagens) ficam em src/public
 app.use(express.static(path.join(__dirname, 'src', 'public')));
 
-// Rotas do site público (Home, Planos, Login, Estádio, Ingressos)
 app.use('/', publicRoutes);
+app.use('/', authRoutes);
 
-// Rotas do painel administrativo (protegidas pelo middleware de autenticação)
-app.use('/admin', autenticar, adminRoutes);
+app.use('/admin', autenticar, apenasAdmin, (req, res, next) => {
+    res.locals.usuarioLogado = req.usuario?.nome;
+    next();
+}, adminRoutes);
 
-sequelize.sync()
-    .then(() => {
-
+async function inicializarBanco() {
+    try {
+        await sequelize.sync({ alter: true });
         app.listen(3000, () => {
             console.log('Servidor rodando na porta 3000');
         });
-
-    })
-    .catch((erro) => {
+    } catch (erro) {
         console.log('Erro ao conectar banco:', erro);
-    });
+    }
+}
 
-module.exports = app;
+inicializarBanco();

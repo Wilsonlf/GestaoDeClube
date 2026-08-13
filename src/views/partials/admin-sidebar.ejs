@@ -5,11 +5,12 @@
   </div>
   <ul class="admin-nav">
     <li><a href="/admin/dashboard" <% if (active === 'dashboard') { %>aria-current="page"<% } %>>Dashboard</a></li>
+    <li><a href="/admin/usuarios" <% if (active === 'usuarios') { %>aria-current="page"<% } %>>Usuários</a></li>
     <li><a href="/admin/socios" <% if (active === 'socios') { %>aria-current="page"<% } %>>Sócios</a></li>
     <li><a href="/admin/noticias" <% if (active === 'noticias') { %>aria-current="page"<% } %>>Notícias</a></li>
     <li><a href="/admin/elenco" <% if (active === 'elenco') { %>aria-current="page"<% } %>>Elenco</a></li>
     <li><a href="/admin/pagamentos" <% if (active === 'pagamentos') { %>aria-current="page"<% } %>>Pagamentos</a></li>
     <li><a href="/admin/relatorios" <% if (active === 'relatorios') { %>aria-current="page"<% } %>>Relatórios</a></li>
   </ul>
-  <a href="/login" class="logout">← Sair</a>
+  <a href="/logout" class="logout">← Sair</a>
 </aside>

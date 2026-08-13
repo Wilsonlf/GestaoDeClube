@@ -9,24 +9,34 @@ const SocioTorcedor = sequelize.define('SocioTorcedor', {
         primaryKey: true
     },
 
-    nome: {
+    usuarioId: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
+        references: {
+            model: 'usuarios',
+            key: 'id'
+        },
+        onDelete: 'SET NULL'
+    },
+
+    plano: {
         type: DataTypes.STRING,
         allowNull: false
     },
 
-    cpf: {
-        type: DataTypes.STRING,
+    dataAssociacao: {
+        type: DataTypes.DATE,
         allowNull: false
     },
 
-    telefone: {
-        type: DataTypes.STRING
-    },
-
-    email: {
-        type: DataTypes.STRING
+    status: {
+        type: DataTypes.STRING,
+        defaultValue: 'ativo'
     }
 
+}, {
+    tableName: 'sociotorcedores',
+    freezeTableName: true
 });
 
 module.exports = SocioTorcedor;

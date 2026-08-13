@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Entrar · Águia Negra</title>
+<title>Criar conta · Águia Negra</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/style.css" />
@@ -11,14 +11,29 @@
 <body class="login-body">
 
 <main class="login-screen">
-  <form class="login-card" id="login-form" novalidate>
+  <form class="login-card" id="cadastro-form" novalidate>
     <div class="nav-crest" style="width:64px; height:64px; font-size:20px; margin:0 auto 14px;">ECAN</div>
     <h1 style="font-size:18px;">Esporte Clube Águia Negra</h1>
-    <p class="muted" style="margin:4px 0 22px; font-size:13px;">Acesse sua conta</p>
+    <p class="muted" style="margin:4px 0 22px; font-size:13px;">Crie sua conta</p>
+
+    <label class="field">
+      <span>Nome</span>
+      <input type="text" id="nome" name="nome" placeholder="Seu nome completo" required />
+    </label>
 
     <label class="field">
       <span>E-mail</span>
       <input type="email" id="email" name="email" placeholder="voce@email.com" required />
+    </label>
+
+    <label class="field">
+      <span>CPF</span>
+      <input type="text" id="cpf" name="cpf" placeholder="000.000.000-00" />
+    </label>
+
+    <label class="field">
+      <span>Telefone</span>
+      <input type="text" id="telefone" name="telefone" placeholder="(00) 00000-0000" />
     </label>
 
     <label class="field">
@@ -29,11 +44,12 @@
       </div>
     </label>
 
-    <p id="login-feedback" class="muted" style="font-size:13px;" hidden></p>
+    <p id="cadastro-feedback" class="muted" style="font-size:13px;" hidden></p>
 
-    <button type="submit" class="btn btn-primary btn-block" style="margin-top:6px;">Entrar</button>
+    <button type="submit" class="btn btn-primary btn-block" style="margin-top:6px;">Criar conta</button>
 
-<p class="login-alt">Não possui conta? <a href="/cadastro">Crie sua conta</a></p>    <p class="login-back"><a href="/">← Voltar ao site</a></p>
+    <p class="login-alt">Já tem conta? <a href="/login">Entrar</a></p>
+    <p class="login-back"><a href="/">← Voltar ao site</a></p>
   </form>
 </main>
 

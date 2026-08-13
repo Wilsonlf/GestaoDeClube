@@ -19,6 +19,9 @@ const Noticia = sequelize.define('Noticia', {
         allowNull: false
     }
 
+} , {
+    tableName: 'noticias',
+    freezeTableName: true
 });
 
 module.exports = Noticia;

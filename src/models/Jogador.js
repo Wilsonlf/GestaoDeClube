@@ -22,6 +22,9 @@ const Jogador = sequelize.define('Jogador', {
         type: DataTypes.STRING
     }
 
+} , {
+    tableName: 'jogadores',
+    freezeTableName: true
 });
 
 module.exports = Jogador;

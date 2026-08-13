@@ -32,28 +32,20 @@
         <table class="data-table">
           <thead>
             <tr>
-              <th>Nome</th><th>CPF</th><th>E-mail</th><th>Plano</th><th>Status</th><th>Sócio desde</th><th>Ações</th>
+              <th>Nome</th><th>CPF</th><th>Telefone</th><th>E-mail</th><th>Sócio desde</th><th>Ações</th>
             </tr>
           </thead>
           <tbody>
-            <%
-            var lista = typeof socios !== 'undefined' ? socios : [
-              { nome: 'Maria Souza', cpf: '123.456.789-00', email: 'maria@email.com', plano: 'Voo Supremo', status: 'ativo', desde: '10/01/2024' },
-              { nome: 'João Pereira', cpf: '234.567.890-11', email: 'joao@email.com', plano: 'Asas Negras', status: 'ativo', desde: '22/03/2024' },
-              { nome: 'Ana Lima', cpf: '345.678.901-22', email: 'ana@email.com', plano: 'Ninho', status: 'pendente', desde: '05/06/2024' },
-              { nome: 'Carlos Mendes', cpf: '456.789.012-33', email: 'carlos@email.com', plano: 'Asas Negras', status: 'ativo', desde: '12/08/2024' },
-              { nome: 'Beatriz Rocha', cpf: '567.890.123-44', email: 'bia@email.com', plano: 'Ninho', status: 'inativo', desde: '01/12/2023' },
-              { nome: 'Fernando Dias', cpf: '678.901.234-55', email: 'fernando@email.com', plano: 'Voo Supremo', status: 'ativo', desde: '16/09/2024' }
-            ];
-            var badgeClasse = { ativo: 'badge-success', pendente: 'badge-pending', inativo: 'badge-danger' };
-            lista.forEach(function(s) { %>
+            <% if (!socios || socios.length === 0) { %>
+            <tr><td colspan="6" class="muted">Nenhum sócio cadastrado ainda.</td></tr>
+            <% } %>
+            <% (socios || []).forEach(function(s) { %>
             <tr>
               <td class="emphasis"><%= s.nome %></td>
               <td><%= s.cpf %></td>
-              <td><%= s.email %></td>
-              <td><%= s.plano %></td>
-              <td><span class="badge <%= badgeClasse[s.status] %>"><%= s.status %></span></td>
-              <td><%= s.desde %></td>
+              <td><%= s.telefone || '—' %></td>
+              <td><%= s.email || '—' %></td>
+              <td><%= s.createdAt ? new Date(s.createdAt).toLocaleDateString('pt-BR') : '—' %></td>
               <td class="row-actions"><a href="#" title="Editar">✏️</a><a href="#" title="Excluir">🗑️</a></td>
             </tr>
             <% }) %>

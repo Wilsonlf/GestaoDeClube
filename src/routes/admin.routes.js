@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const authController = require('../controllers/authController');
 const adminController = require('../controllers/adminController');
+const socioController = require('../controllers/socioController');
 
 const SocioTorcedor = require('../models/SocioTorcedor');
 const Noticia = require('../models/Noticia');
@@ -26,16 +27,6 @@ router.get('/dashboard', async (req, res) => {
     }
 });
 
-router.get('/socios', async (req, res) => {
-    try {
-        const socios = await SocioTorcedor.findAll({ order: [['nome', 'ASC']] });
-        res.render('admin/socios', { socios });
-    } catch (erro) {
-        console.error(erro);
-        res.status(500).send('Erro ao carregar sócios');
-    }
-});
-
 router.get('/noticias', async (req, res) => {
     try {
         const noticias = await Noticia.findAll({ order: [['createdAt', 'DESC']] });
@@ -56,15 +47,12 @@ router.get('/elenco', async (req, res) => {
     }
 });
 
-router.get('/pagamentos', async (req, res) => {
-    try {
-        const pagamentos = await Pagamento.findAll({ order: [['data_pagamento', 'DESC']] });
-        res.render('admin/pagamentos', { pagamentos });
-    } catch (erro) {
-        console.error(erro);
-        res.status(500).send('Erro ao carregar pagamentos');
-    }
-});
+router.get('/socios', socioController.listarSocios);
+router.get('/socios/novo', socioController.formNovoSocio);
+router.post('/socios', socioController.criarSocio);
+router.get('/socios/:id/editar', socioController.formEditarSocio);
+router.post('/socios/:id', socioController.atualizarSocio);
+router.post('/socios/:id/excluir', socioController.excluirSocio);
 
 router.get('/relatorios', (req, res) => {
     res.render('admin/relatorios', {

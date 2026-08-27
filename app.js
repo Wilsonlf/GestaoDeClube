@@ -5,7 +5,7 @@ require('./src/models/Noticia');
 require('./src/models/Ingresso');
 require('./src/models/Pagamento');
 require('./src/models/Material');
-require('./src/models/Index');
+require('./src/models/index');
 
 
 const express = require('express');
@@ -19,11 +19,13 @@ const authRoutes = require('./src/routes/auth.routes');
 const adminRoutes = require('./src/routes/admin.routes');
 const verificarLogin = require('./src/middlewares/verificarLogin');
 const { autenticar, apenasAdmin } = require('./src/middlewares/auth');
+const { identificarUsuario } = require('./src/middlewares/auth');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 app.use(verificarLogin);
+app.use(identificarUsuario);
 
 app.set('view engine', 'ejs');
 app.set('views', path.join(__dirname, 'src', 'views'));

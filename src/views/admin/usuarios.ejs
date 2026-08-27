@@ -33,11 +33,17 @@
                     <th>Nome</th>
                     <th>E-mail</th>
                     <th>Tipo</th>
-                    <th>Ações</th>
+                    <th>Ações (Administrador)</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <% usuarios.forEach(function(u) { %>
+                  <% if (!usuarios || usuarios.length === 0) { %>
+                    <tr>
+                      <td colspan="4" class="muted">Nenhum usuário cadastrado.</td>
+                    </tr>
+                  <% } %>
+
+                  <% (usuarios || []).forEach(function(u) { %>
                     <tr>
                       <td class="emphasis">
                         <%= u.nome %>
@@ -46,16 +52,17 @@
                         <%= u.email %>
                       </td>
                       <td>
-                        <%= u.tipo %>
+                        <span class="status-tag <%= u.tipo === 'admin' ? 'status-ativo' : '' %>">
+                          <%= u.tipo.charAt(0).toUpperCase() + u.tipo.slice(1) %>
+                        </span>
                       </td>
                       <td>
                         <form action="/admin/usuarios/<%= u.id %>/tipo" method="POST" class="tipo-switch">
-                          <% ['comum', 'socio' , 'admin' ].forEach(function(opcao) { %>
-                            <button type="submit" name="tipo" value="<%= opcao %>"
-                              class="tipo-pill <% if (u.tipo === opcao) { %>tipo-pill--ativo<% } %>">
-                              <%= opcao.charAt(0).toUpperCase() + opcao.slice(1) %>
-                            </button>
-                            <% }) %>
+                          <button type="submit" 
+                            class="tipo-pill <% if (u.tipo === 'admin') { %>tipo-pill--ativo<% } %>"
+                            title="<%= u.tipo === 'admin' ? 'Clique para remover privilégio de Admin' : 'Clique para tornar Admin' %>">
+                            <%= u.tipo === 'admin' ? 'Admin (Ativo)' : 'Tornar Admin' %>
+                          </button>
                         </form>
                       </td>
                     </tr>

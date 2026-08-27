@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Sócios · Painel Administrativo</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="/css/style.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sócios · Painel Administrativo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body class="admin-body">
 <div class="admin-shell">
@@ -21,33 +21,65 @@
           <h1>Sócios Torcedores</h1>
           <p class="muted" style="font-size:13px; margin-top:4px;">Cadastro e gestão de sócios</p>
         </div>
-        <a href="#" class="btn btn-primary">+ Novo sócio</a>
+        <a href="/admin/socios/novo" class="btn btn-primary">+ Novo sócio</a>
       </div>
 
-      <div class="toolbar" style="margin-bottom:16px;">
-        <input type="search" class="search-input" placeholder="Buscar por nome ou CPF" />
-      </div>
+      <form action="/admin/socios" method="GET" class="toolbar" style="margin-bottom:16px;">
+        <input 
+          type="search" 
+          name="busca" 
+          class="search-input" 
+          placeholder="Buscar por nome ou CPF" 
+          value="<%= typeof termo !== 'undefined' ? termo : '' %>"
+        />
+      </form>
 
       <div class="data-table-wrap">
         <table class="data-table">
           <thead>
             <tr>
-              <th>Nome</th><th>CPF</th><th>Telefone</th><th>E-mail</th><th>Sócio desde</th><th>Ações</th>
+              <th>Nome</th>
+              <th>CPF</th>
+              <th>Telefone</th>
+              <th>E-mail</th>
+              <th>Plano</th>
+              <th>Status</th>
+              <th>Sócio desde</th>
+              <th>Ações</th>
             </tr>
           </thead>
           <tbody>
             <% if (!socios || socios.length === 0) { %>
-            <tr><td colspan="6" class="muted">Nenhum sócio cadastrado ainda.</td></tr>
+              <tr>
+                <td colspan="8" class="muted">Nenhum sócio cadastrado ainda.</td>
+              </tr>
             <% } %>
+
             <% (socios || []).forEach(function(s) { %>
-            <tr>
-              <td class="emphasis"><%= s.nome %></td>
-              <td><%= s.cpf %></td>
-              <td><%= s.telefone || '—' %></td>
-              <td><%= s.email || '—' %></td>
-              <td><%= s.createdAt ? new Date(s.createdAt).toLocaleDateString('pt-BR') : '—' %></td>
-              <td class="row-actions"><a href="#" title="Editar">✏️</a><a href="#" title="Excluir">🗑️</a></td>
-            </tr>
+              <tr>
+                <td class="emphasis"><%= s.Usuario ? s.Usuario.nome : '—' %></td>
+                <td><%= (s.Usuario && s.Usuario.cpf) ? s.Usuario.cpf : '—' %></td>
+                <td><%= (s.Usuario && s.Usuario.telefone) ? s.Usuario.telefone : '—' %></td>
+                <td><%= (s.Usuario && s.Usuario.email) ? s.Usuario.email : '—' %></td>
+                <td><span class="badge"><%= s.plano || '—' %></span></td>
+                <td>
+                  <span class="status-tag <%= s.status === 'ativo' ? 'status-ativo' : 'status-inativo' %>">
+                    <%= s.status || 'ativo' %>
+                  </span>
+                </td>
+                <td>
+                  <%= (s.dataAssociacao || s.createdAt) ? new Date(s.dataAssociacao || s.createdAt).toLocaleDateString('pt-BR') : '—' %>
+                </td>
+                <td class="row-actions">
+                  <a href="/admin/socios/<%= s.id %>/editar" title="Editar">✏️</a>
+
+                  <form action="/admin/socios/<%= s.id %>/excluir" method="POST" style="display:inline;" onsubmit="return confirm('Tem certeza que deseja excluir este sócio e a conta de usuário associada?');">
+                    <button type="submit" class="row-action-btn" title="Excluir" style="background:none; border:none; cursor:pointer; padding:0;">
+                      🗑️
+                    </button>
+                  </form>
+                </td>
+              </tr>
             <% }) %>
           </tbody>
         </table>

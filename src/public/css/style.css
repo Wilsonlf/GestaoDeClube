@@ -708,3 +708,89 @@ input:focus-visible {
 .tipo-pill--ativo:hover {
   background: var(--red-bright);
 }
+
+/* ==========================================================================
+   MÓDULO: Form Sócio
+   ========================================================================== */
+
+.mb-md { margin-bottom: 16px; }
+.mb-lg { margin-bottom: 24px; }
+
+.form-panel {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 28px;
+}
+
+.form-label {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--bone);
+  margin-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-control {
+  width: 100%;
+  padding: 10px 14px;
+  background: var(--black-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--bone);
+  font-family: var(--font-body);
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-control:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 1px var(--gold);
+}
+
+.form-control option {
+  background: var(--black-soft);
+  color: var(--bone);
+}
+
+.form-control--readonly {
+  background: var(--black);
+  border-color: var(--line);
+  color: var(--bone-dim);
+  cursor: not-allowed;
+}
+
+.form-grid {
+  display: grid;
+  gap: 20px;
+}
+
+.form-grid--2col {
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+}
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  padding-top: 20px;
+  border-top: 1px solid var(--line);
+}
+
+.form-alert {
+  padding: 12px 16px;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.form-alert--error {
+  background: rgba(192, 57, 43, 0.15);
+  border: 1px solid var(--danger);
+  color: var(--bone);
+}

@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= socio ? 'Editar Sócio' : 'Novo Sócio' %> · Painel Administrativo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body class="admin-body">
+<div class="admin-shell">
+  <%- include('../partials/admin-sidebar', { active: 'socios' }) %>
+
+  <main class="admin-main">
+    <%- include('../partials/admin-topbar') %>
+
+    <div class="admin-content">
+      <div class="admin-content-head mb-lg">
+        <div>
+          <h1><%= socio ? 'Editar Sócio' : 'Vincular Novo Sócio' %></h1>
+          <p class="muted" style="font-size:13px; margin-top:4px;">
+            <%= socio ? 'Atualize o plano e status do sócio' : 'Selecione um usuário cadastrado no site para atribuir um plano' %>
+          </p>
+        </div>
+        <a href="/admin/socios" class="btn btn-secondary">← Voltar para a lista</a>
+      </div>
+
+      <% if (typeof erro !== 'undefined' && erro) { %>
+        <div class="form-alert form-alert--error mb-md">
+          <%= erro %>
+        </div>
+      <% } %>
+
+      <div class="form-panel">
+        <form action="<%= socio ? '/admin/socios/' + socio.id : '/admin/socios' %>" method="POST">
+          
+          <div class="form-group mb-md">
+            <label for="usuarioId" class="form-label">Usuário *</label>
+            <% if (socio) { %>
+              <input 
+                type="text" 
+                class="form-control form-control--readonly" 
+                value="<%= socio.Usuario ? socio.Usuario.nome + ' (' + socio.Usuario.email + ')' : '' %>" 
+                readonly 
+              />
+            <% } else { %>
+              <select id="usuarioId" name="usuarioId" class="form-control" required>
+                <option value="" disabled selected>Selecione um usuário da lista...</option>
+                <% (usuariosDisponiveis || []).forEach(function(u) { %>
+                  <option value="<%= u.id %>">
+                    <%= u.nome %> — <%= u.email %> <%= u.cpf ? '(CPF: ' + u.cpf + ')' : '' %>
+                  </option>
+                <% }) %>
+              </select>
+            <% } %>
+          </div>
+
+          <div class="form-grid form-grid--2col mb-lg">
+            <div class="form-group">
+              <label for="plano" class="form-label">Plano *</label>
+              <% const planoAtual = socio ? socio.plano : ''; %>
+              <select id="plano" name="plano" class="form-control" required>
+                <option value="" disabled <%= !planoAtual ? 'selected' : '' %>>Selecione um plano</option>
+                <option value="Ninho" <%= planoAtual === 'Ninho' ? 'selected' : '' %>>Ninho</option>
+                <option value="Asas Negras" <%= planoAtual === 'Asas Negras' ? 'selected' : '' %>>Asas Negras</option>
+                <option value="Voo Supremo" <%= planoAtual === 'Voo Supremo' ? 'selected' : '' %>>Voo Supremo</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="status" class="form-label">Status</label>
+              <% const statusAtual = socio ? socio.status : 'ativo'; %>
+              <select id="status" name="status" class="form-control">
+                <option value="ativo" <%= statusAtual === 'ativo' ? 'selected' : '' %>>Ativo</option>
+                <option value="inativo" <%= statusAtual === 'inativo' ? 'selected' : '' %>>Inativo</option>
+                <option value="pendente" <%= statusAtual === 'pendente' ? 'selected' : '' %>>Pendente</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <a href="/admin/socios" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary">
+              <%= socio ? 'Salvar Alterações' : 'Vincular como Sócio' %>
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

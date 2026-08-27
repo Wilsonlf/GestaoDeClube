@@ -16,17 +16,19 @@ async function listarUsuarios(req, res) {
 async function atualizarTipo(req, res) {
     try {
         const { id } = req.params;
-        const { tipo } = req.body;
+        const usuario = await Usuario.findByPk(id);
 
-        if (!['comum', 'socio', 'admin'].includes(tipo)) {
-            return res.status(400).send('Tipo inválido');
+        if (!usuario) {
+            return res.status(404).send('Usuário não encontrado');
         }
 
-        await Usuario.update({ tipo }, { where: { id } });
+        const novoTipo = usuario.tipo === 'admin' ? 'comum' : 'admin';
+
+        await usuario.update({ tipo: novoTipo });
         res.redirect('/admin/usuarios');
     } catch (erro) {
         console.error(erro);
-        res.status(500).send('Erro ao atualizar usuário');
+        res.status(500).send('Erro ao atualizar tipo do usuário');
     }
 }
 

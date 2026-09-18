@@ -18,18 +18,9 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  document.querySelectorAll("[data-comprar-ingresso]").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const card = btn.closest(".ticket-card");
-      const status = card.querySelector(".ticket-status");
-      btn.disabled = true;
-      btn.textContent = "Processando...";
-      setTimeout(() => {
-        btn.textContent = "Ingresso reservado";
-        if (status) status.textContent = "Reservado — finalize o pagamento no e-mail enviado.";
-      }, 700);
-    });
-  });
+  // A compra de ingresso de verdade (fetch + Mercado Pago) está no <script>
+  // inline de src/views/ingressos.ejs, porque só é montada quando há um
+  // usuário logado (mesmo padrão usado em planos.ejs para os planos).
 
   const loginForm = document.querySelector("#login-form");
   if (loginForm) {

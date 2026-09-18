@@ -35,7 +35,7 @@ const Usuario = sequelize.define('Usuario', {
     },
 
     tipo: {
-        type: DataTypes.ENUM('comum', 'socio', 'admin'),
+        type: DataTypes.ENUM('comum', 'socio', 'admin', 'portaria'),
         allowNull: false,
         defaultValue: 'comum'
     }

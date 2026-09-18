@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title><%= titulo %> · Águia Negra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body class="login-body">
+
+<main class="login-screen">
+  <section class="login-card status-card">
+    <div class="status-icon status-icon--<%= status %>" aria-hidden="true"><%= icone %></div>
+
+    <h1><%= titulo %></h1>
+    <p class="status-msg"><%= mensagem %></p>
+
+    <a href="/" class="btn btn-primary btn-block">Ir para a página inicial</a>
+
+    <% if (status !== 'sucesso' && typeof linkAlternativo !== 'undefined' && linkAlternativo) { %>
+      <p class="login-alt"><a href="<%= linkAlternativo.href %>"><%= linkAlternativo.texto %></a></p>
+    <% } %>
+
+    <p class="status-redirect">
+      Redirecionando em <span id="contador" data-segundos="<%= segundos %>"><%= segundos %></span>s...
+    </p>
+  </section>
+</main>
+
+<script>
+  (function () {
+    const alvo = document.querySelector('#contador');
+    let restantes = Number(alvo && alvo.dataset.segundos) || 10;
+
+    const intervalo = setInterval(() => {
+      restantes -= 1;
+      if (alvo) alvo.textContent = restantes;
+      if (restantes <= 0) {
+        clearInterval(intervalo);
+        window.location.href = '/';
+      }
+    }, 1000);
+  })();
+</script>
+</body>
+</html>

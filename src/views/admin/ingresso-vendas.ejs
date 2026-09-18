@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Vendas de Ingressos · Painel Administrativo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body class="admin-body">
+<div class="admin-shell">
+  <%- include('../partials/admin-sidebar', { active: 'ingressos' }) %>
+
+  <main class="admin-main">
+    <%- include('../partials/admin-topbar') %>
+
+    <div class="admin-content">
+      <div class="admin-content-head mb-lg">
+        <div>
+          <h1>Vendas de Ingressos</h1>
+          <p class="muted" style="font-size:13px; margin-top:4px;">Quem comprou cada partida</p>
+        </div>
+        <a href="/admin/ingressos" class="btn btn-secondary">← Voltar para Ingressos</a>
+      </div>
+
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Partida</th>
+              <th>Comprador</th>
+              <th>CPF</th>
+              <th>Qtd.</th>
+              <th>Pagamento</th>
+              <th>Entrada</th>
+              <th>Comprado em</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (!compras || compras.length === 0) { %>
+              <tr><td colspan="7" class="muted">Nenhuma compra de ingresso registrada ainda.</td></tr>
+            <% } %>
+
+            <% (compras || []).forEach(function(c) { %>
+              <tr>
+                <td class="emphasis"><%= c.Ingresso ? c.Ingresso.partida : '—' %></td>
+                <td><%= c.Usuario ? c.Usuario.nome : '—' %></td>
+                <td><%= (c.Usuario && c.Usuario.cpf) || 'não informado' %></td>
+                <td><%= c.quantidade %></td>
+                <td>
+                  <span class="badge <%= c.status === 'aprovado' ? 'badge-success' : 'badge-pending' %>">
+                    <%= c.status %>
+                  </span>
+                </td>
+                <td>
+                  <span class="badge <%= c.statusCheckin === 'utilizado' ? 'badge-success' : 'badge-pending' %>">
+                    <%= c.statusCheckin === 'utilizado' ? 'Utilizado' : 'Pendente' %>
+                  </span>
+                </td>
+                <td><%= new Date(c.createdAt).toLocaleString('pt-BR') %></td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

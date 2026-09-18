@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Ingressos · Painel Administrativo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body class="admin-body">
+<div class="admin-shell">
+  <%- include('../partials/admin-sidebar', { active: 'ingressos' }) %>
+
+  <main class="admin-main">
+    <%- include('../partials/admin-topbar') %>
+
+    <div class="admin-content">
+      <div class="admin-content-head">
+        <div>
+          <h1>Ingressos</h1>
+          <p class="muted" style="font-size:13px; margin-top:4px;">Cadastro de partidas e controle de quantidade disponível</p>
+        </div>
+        <div style="display:flex; gap:10px;">
+          <a href="/admin/ingressos/vendas" class="btn btn-secondary">Ver vendas</a>
+          <a href="/admin/ingressos/novo" class="btn btn-primary">+ Novo ingresso</a>
+        </div>
+      </div>
+
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr>
+              <th>Partida</th>
+              <th>Data</th>
+              <th>Local</th>
+              <th>Valor</th>
+              <th>Total</th>
+              <th>Vendidos</th>
+              <th>Disponíveis</th>
+              <th>Status</th>
+              <th>Ações</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% if (!ingressos || ingressos.length === 0) { %>
+              <tr>
+                <td colspan="9" class="muted">Nenhum ingresso cadastrado ainda.</td>
+              </tr>
+            <% } %>
+
+            <% (ingressos || []).forEach(function(i) { %>
+              <% const disponiveis = i.quantidadeTotal - i.quantidadeVendida; %>
+              <tr>
+                <td class="emphasis">
+                  <%= i.partida %>
+                  <% if (i.competicao) { %>
+                    <div class="muted" style="font-size:12px; margin-top:2px;"><%= i.competicao %></div>
+                  <% } %>
+                </td>
+                <td><%= new Date(i.dataPartida).toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' }) %></td>
+                <td><%= i.local %></td>
+                <td>R$ <%= Number(i.valor).toFixed(2).replace('.', ',') %></td>
+                <td><%= i.quantidadeTotal %></td>
+                <td><%= i.quantidadeVendida %></td>
+                <td><%= disponiveis %></td>
+                <td>
+                  <span class="status-tag <%= i.status === 'ativo' ? 'status-ativo' : 'status-encerrado' %>">
+                    <%= i.status %>
+                  </span>
+                </td>
+                <td class="row-actions">
+                  <a href="/admin/ingressos/<%= i.id %>/editar" title="Editar">✏️</a>
+
+                  <form action="/admin/ingressos/<%= i.id %>/excluir" method="POST" style="display:inline;" onsubmit="return confirm('Tem certeza que deseja excluir este ingresso?');">
+                    <button type="submit" class="row-action-btn" title="Excluir" style="background:none; border:none; cursor:pointer; padding:0;">
+                      🗑️
+                    </button>
+                  </form>
+                </td>
+              </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

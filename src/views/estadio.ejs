@@ -17,23 +17,7 @@
   </div>
 </div>
 
-<header class="nav">
-  <div class="wrap">
-    <ul class="nav-links">
-      <li><a href="/">Clube</a></li>
-      <li><a href="/#noticias">Notícias</a></li>
-      <li><a href="/#elenco">Elenco</a></li>
-    </ul>
-    <div class="nav-crest" aria-hidden="true">ECAN</div>
-    <ul class="nav-links" style="justify-content:flex-end;">
-      <li><a href="/estadio" aria-current="page">Estádio</a></li>
-      <li><a href="/ingressos">Ingressos</a></li>
-      <li><a href="/planos">Sócio</a></li>
-      <li><a href="/login">Login</a></li>
-    </ul>
-    <button class="nav-toggle" aria-label="Abrir menu" aria-expanded="false">☰</button>
-  </div>
-</header>
+<%- include('partials/nav-publico', { active: 'estadio' }) %>
 
 <main class="section">
   <div class="wrap">
@@ -76,7 +60,7 @@
     </div>
     <div class="contact">contato@ecan.com.br<br />(67) 3000-0000</div>
   </div>
-  <div class="legal">© 2026 Esporte Clube Águia Negra — Fundado em 1972</div>
+  <div class="legal">© 2026 Esporte Clube Águia Negra — Fundado em 1971</div>
 </footer>
 
 <script src="/js/main.js"></script>

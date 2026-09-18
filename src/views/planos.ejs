@@ -23,23 +23,7 @@
     </div>
   </div>
 
-  <header class="nav">
-    <div class="wrap">
-      <ul class="nav-links">
-        <li><a href="/">Clube</a></li>
-        <li><a href="/#noticias">Notícias</a></li>
-        <li><a href="/#elenco">Elenco</a></li>
-      </ul>
-      <div class="nav-crest" aria-hidden="true">ECAN</div>
-      <ul class="nav-links" style="justify-content:flex-end;">
-        <li><a href="/estadio">Estádio</a></li>
-        <li><a href="/ingressos">Ingressos</a></li>
-        <li><a href="/planos" aria-current="page">Sócio</a></li>
-        <li><a href="/login">Login</a></li>
-      </ul>
-      <button class="nav-toggle" aria-label="Abrir menu" aria-expanded="false">☰</button>
-    </div>
-  </header>
+  <%- include('partials/nav-publico', { active: 'planos' }) %>
 
   <main>
     <section class="plans-hero">
@@ -67,8 +51,8 @@
             <li>Acesso a sorteios exclusivos</li>
           </ul>
           <% if (typeof usuario !=='undefined' && usuario) { %>
-            <button class="btn btn-primary btn-block" data-plano="bronze">Assine agora</button>
-            <div id="wallet_bronze" style="margin-top:10px;"></div>
+            <button class="btn btn-primary btn-block" data-plano="ninho">Assine agora</button>
+            <div id="wallet_ninho" style="margin-top:10px;"></div>
             <% } else { %>
               <a href="/login" class="btn btn-primary btn-block">Assine agora</a>
               <% } %>
@@ -87,8 +71,8 @@
             <li>Conteúdos exclusivos (bastidores, pré-jogo, vestiário)</li>
           </ul>
           <% if (typeof usuario !=='undefined' && usuario) { %>
-            <button class="btn btn-gold btn-block" data-plano="prata">Assine agora</button>
-            <div id="wallet_prata" style="margin-top:10px;"></div>
+            <button class="btn btn-gold btn-block" data-plano="asas_negras">Assine agora</button>
+            <div id="wallet_asas_negras" style="margin-top:10px;"></div>
             <% } else { %>
               <a href="/login" class="btn btn-gold btn-block">Assine agora</a>
               <% } %>
@@ -108,8 +92,8 @@
             <li>Experiência anual (visita ao CT, estádio ou evento com o elenco)</li>
           </ul>
           <% if (typeof usuario !=='undefined' && usuario) { %>
-            <button class="btn btn-primary btn-block" data-plano="ouro">Assine agora</button>
-            <div id="wallet_ouro" style="margin-top:10px;"></div>
+            <button class="btn btn-primary btn-block" data-plano="voo_supremo">Assine agora</button>
+            <div id="wallet_voo_supremo" style="margin-top:10px;"></div>
             <% } else { %>
               <a href="/login" class="btn btn-primary btn-block">Assine agora</a>
               <% } %>
@@ -127,14 +111,14 @@
       </div>
       <div class="contact">contato@ecan.com.br<br />(67) 3000-0000</div>
     </div>
-    <div class="legal">© 2026 Esporte Clube Águia Negra — Fundado em 1972</div>
+    <div class="legal">© 2026 Esporte Clube Águia Negra — Fundado em 1971</div>
   </footer>
 
   <script src="/js/main.js"></script>
 
   <% if (typeof usuario !=='undefined' && usuario) { %>
     <script>
-      const mp = new MercadoPago('SUA_PUBLIC_KEY_AQUI');
+      const mp = new MercadoPago('APP_USR-5776e051-d303-4306-83eb-e275bb5a1e68');
 
       document.querySelectorAll('[data-plano]').forEach(botao => {
         botao.addEventListener('click', async () => {

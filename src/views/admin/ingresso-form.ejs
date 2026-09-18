@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= ingresso ? 'Editar Ingresso' : 'Novo Ingresso' %> · Painel Administrativo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body class="admin-body">
+<div class="admin-shell">
+  <%- include('../partials/admin-sidebar', { active: 'ingressos' }) %>
+
+  <main class="admin-main">
+    <%- include('../partials/admin-topbar') %>
+
+    <div class="admin-content">
+      <div class="admin-content-head mb-lg">
+        <div>
+          <h1><%= ingresso ? 'Editar Ingresso' : 'Novo Ingresso' %></h1>
+          <p class="muted" style="font-size:13px; margin-top:4px;">
+            <%= ingresso ? 'Atualize os dados da partida e a quantidade disponível' : 'Cadastre uma partida e a quantidade de ingressos colocada à venda' %>
+          </p>
+        </div>
+        <a href="/admin/ingressos" class="btn btn-secondary">← Voltar para a lista</a>
+      </div>
+
+      <% if (typeof erro !== 'undefined' && erro) { %>
+        <div class="form-alert form-alert--error mb-md">
+          <%= erro %>
+        </div>
+      <% } %>
+
+      <%
+        const v = (typeof dados !== 'undefined' && dados) ? dados : (ingresso || {});
+
+        function formatarDataInput(data) {
+          if (!data) return '';
+          const d = new Date(data);
+          if (Number.isNaN(d.getTime())) return '';
+          const pad = (n) => String(n).padStart(2, '0');
+          return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+        }
+      %>
+
+      <div class="form-panel">
+        <form action="<%= ingresso ? '/admin/ingressos/' + ingresso.id : '/admin/ingressos' %>" method="POST">
+
+          <div class="form-grid form-grid--2col mb-md">
+            <div class="form-group">
+              <label for="partida" class="form-label">Partida *</label>
+              <input
+                type="text"
+                id="partida"
+                name="partida"
+                class="form-control"
+                placeholder="ECAN x Operário FC"
+                value="<%= v.partida || '' %>"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="competicao" class="form-label">Competição</label>
+              <input
+                type="text"
+                id="competicao"
+                name="competicao"
+                class="form-control"
+                placeholder="Campeonato Sul-Mato-Grossense"
+                value="<%= v.competicao || '' %>"
+              />
+            </div>
+          </div>
+
+          <div class="form-grid form-grid--2col mb-md">
+            <div class="form-group">
+              <label for="dataPartida" class="form-label">Data e hora *</label>
+              <input
+                type="datetime-local"
+                id="dataPartida"
+                name="dataPartida"
+                class="form-control"
+                value="<%= formatarDataInput(v.dataPartida) %>"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="local" class="form-label">Local *</label>
+              <input
+                type="text"
+                id="local"
+                name="local"
+                class="form-control"
+                placeholder="Estádio Ninho da Águia"
+                value="<%= v.local || '' %>"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="form-grid form-grid--2col mb-md">
+            <div class="form-group">
+              <label for="valor" class="form-label">Valor (R$) *</label>
+              <input
+                type="number"
+                id="valor"
+                name="valor"
+                class="form-control"
+                step="0.01"
+                min="0.01"
+                placeholder="30.00"
+                value="<%= v.valor || '' %>"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="quantidadeTotal" class="form-label">Quantidade à venda *</label>
+              <input
+                type="number"
+                id="quantidadeTotal"
+                name="quantidadeTotal"
+                class="form-control"
+                step="1"
+                min="<%= ingresso ? ingresso.quantidadeVendida : 0 %>"
+                placeholder="1500"
+                value="<%= v.quantidadeTotal || '' %>"
+                required
+              />
+              <% if (ingresso) { %>
+                <p class="muted" style="font-size:12px; margin-top:6px;">
+                  <%= ingresso.quantidadeVendida %> já vendidos · <%= ingresso.quantidadeTotal - ingresso.quantidadeVendida %> disponíveis
+                </p>
+              <% } %>
+            </div>
+          </div>
+
+          <% if (ingresso) { %>
+            <div class="form-group mb-lg" style="max-width:240px;">
+              <label for="status" class="form-label">Status</label>
+              <% const statusAtual = v.status || 'ativo'; %>
+              <select id="status" name="status" class="form-control">
+                <option value="ativo" <%= statusAtual === 'ativo' ? 'selected' : '' %>>Ativo</option>
+                <option value="encerrado" <%= statusAtual === 'encerrado' ? 'selected' : '' %>>Encerrado</option>
+              </select>
+            </div>
+          <% } %>
+
+          <div class="form-actions">
+            <a href="/admin/ingressos" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary">
+              <%= ingresso ? 'Salvar Alterações' : 'Cadastrar Ingresso' %>
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

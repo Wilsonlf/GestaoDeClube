@@ -1,5 +1,6 @@
 const express = require('express');
 const router = express.Router();
+const ingressoController = require('../controllers/ingressoController');
 
 router.get('/', (req, res) => {
     res.render('index');
@@ -17,9 +18,7 @@ router.get('/estadio', (req, res) => {
     res.render('estadio');
 });
 
-router.get('/ingressos', (req, res) => {
-    res.render('ingressos');
-});
+router.get('/ingressos', ingressoController.listarIngressosPublico);
 
 router.get('/cadastro', (req, res) => {
     res.render('cadastro');

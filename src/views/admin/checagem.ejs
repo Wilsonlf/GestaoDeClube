@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Checagem de Ingressos · Painel Administrativo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css" />
+  <script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script>
+</head>
+<body class="admin-body">
+<div class="admin-shell">
+  <%- include('../partials/admin-sidebar', { active: 'checagem' }) %>
+
+  <main class="admin-main">
+    <%- include('../partials/admin-topbar') %>
+
+    <div class="admin-content">
+      <div class="admin-content-head mb-lg">
+        <div>
+          <h1>Checagem de Ingressos</h1>
+          <p class="muted" style="font-size:13px; margin-top:4px;">Escaneie o QR Code do ingresso na entrada, ou busque pelo CPF se a leitura falhar.</p>
+        </div>
+      </div>
+
+      <div class="form-grid form-grid--2col" style="align-items:start;">
+
+        <div class="form-panel">
+          <h2 style="font-size:15px; margin-bottom:12px;">Câmera</h2>
+          <div id="reader" style="width:100%; max-width:360px; border-radius:8px; overflow:hidden;"></div>
+          <div class="form-actions" style="margin-top:14px;">
+            <button type="button" id="btn-iniciar-camera" class="btn btn-primary">Ligar câmera</button>
+            <button type="button" id="btn-parar-camera" class="btn btn-secondary" disabled>Parar</button>
+          </div>
+          <p id="camera-erro" class="form-alert form-alert--error mb-md" style="display:none; margin-top:12px;"></p>
+        </div>
+
+        <div class="form-panel">
+          <h2 style="font-size:15px; margin-bottom:12px;">Buscar por CPF</h2>
+          <p class="muted" style="font-size:12px; margin-bottom:10px;">Use quando não for possível ler o QR Code.</p>
+          <div class="form-group">
+            <label for="cpf-busca" class="form-label">CPF do comprador</label>
+            <input type="text" id="cpf-busca" class="form-control" placeholder="Somente números" inputmode="numeric" />
+          </div>
+          <div class="form-actions">
+            <button type="button" id="btn-buscar-cpf" class="btn btn-primary">Buscar ingresso</button>
+          </div>
+
+          <div id="lista-cpf" style="margin-top:16px;"></div>
+        </div>
+
+      </div>
+
+      <div id="resultado" class="form-panel" style="margin-top:20px; display:none;">
+        <h2 style="font-size:15px; margin-bottom:12px;">Resultado</h2>
+        <div id="resultado-conteudo"></div>
+      </div>
+
+    </div>
+  </main>
+</div>
+
+<script>
+(function () {
+  const elReader = document.getElementById('reader');
+  const btnIniciar = document.getElementById('btn-iniciar-camera');
+  const btnParar = document.getElementById('btn-parar-camera');
+  const elCameraErro = document.getElementById('camera-erro');
+  const elResultado = document.getElementById('resultado');
+  const elResultadoConteudo = document.getElementById('resultado-conteudo');
+
+  let leitor = null;
+  let escaneando = false;
+  let travaEnvio = false; // evita disparar a mesma leitura várias vezes seguidas
+
+  function formatarDataHora(iso) {
+    if (!iso) return '';
+    return new Date(iso).toLocaleString('pt-BR');
+  }
+
+  function mostrarResultado(html) {
+    elResultadoConteudo.innerHTML = html;
+    elResultado.style.display = 'block';
+  }
+
+  function cardIngresso(ingresso, statusHtml) {
+    return `
+      <div style="display:flex; flex-direction:column; gap:6px;">
+        ${statusHtml}
+        <p><strong>Comprador:</strong> ${ingresso.comprador.nome} — CPF ${ingresso.comprador.cpf || 'não informado'}</p>
+        <p><strong>Partida:</strong> ${ingresso.partida.nome} · ${formatarDataHora(ingresso.partida.dataPartida)}</p>
+        <p><strong>Local:</strong> ${ingresso.partida.local}</p>
+        <p><strong>Quantidade:</strong> ${ingresso.quantidade}</p>
+        ${ingresso.dataCheckin ? `<p class="muted" style="font-size:12px;">Validado em ${formatarDataHora(ingresso.dataCheckin)}</p>` : ''}
+      </div>
+    `;
+  }
+
+  async function validarPorHash(hash) {
+    const resposta = await fetch('/admin/checagem/validar', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ hash }),
+    });
+    return tratarRespostaValidacao(resposta);
+  }
+
+  async function validarManual(compraId) {
+    const resposta = await fetch('/admin/checagem/validar-manual', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ compraId }),
+    });
+    return tratarRespostaValidacao(resposta);
+  }
+
+  async function tratarRespostaValidacao(resposta) {
+    const dados = await resposta.json();
+
+    if (resposta.ok) {
+      mostrarResultado(cardIngresso(dados.ingresso, '<span class="badge badge-success">✓ Entrada liberada</span>'));
+      return;
+    }
+
+    if (dados.ingresso) {
+      mostrarResultado(cardIngresso(dados.ingresso, `<span class="badge badge-danger">${dados.erro}</span>`));
+      return;
+    }
+
+    mostrarResultado(`<span class="badge badge-danger">${dados.erro || 'Não foi possível validar o ingresso.'}</span>`);
+  }
+
+  async function aoLerQr(textoLido) {
+    if (travaEnvio) return;
+    travaEnvio = true;
+    try {
+      await validarPorHash(textoLido.trim());
+    } finally {
+      // Pequena pausa pra não reenviar a mesma leitura várias vezes por segundo
+      // enquanto o QR ainda está na frente da câmera.
+      setTimeout(() => { travaEnvio = false; }, 2500);
+    }
+  }
+
+  btnIniciar.addEventListener('click', async () => {
+    elCameraErro.style.display = 'none';
+    if (typeof Html5Qrcode === 'undefined') {
+      elCameraErro.textContent = 'Biblioteca de leitura de QR não carregou. Verifique a conexão com a internet.';
+      elCameraErro.style.display = 'block';
+      return;
+    }
+
+    try {
+      leitor = new Html5Qrcode('reader');
+      await leitor.start(
+        { facingMode: 'environment' },
+        { fps: 10, qrbox: 240 },
+        (textoLido) => aoLerQr(textoLido),
+        () => { /* frame sem QR legível — ignora, é o caso comum */ }
+      );
+      escaneando = true;
+      btnIniciar.disabled = true;
+      btnParar.disabled = false;
+    } catch (erro) {
+      elCameraErro.textContent = 'Não foi possível acessar a câmera. Verifique a permissão do navegador.';
+      elCameraErro.style.display = 'block';
+    }
+  });
+
+  btnParar.addEventListener('click', async () => {
+    if (leitor && escaneando) {
+      await leitor.stop();
+      leitor.clear();
+      escaneando = false;
+    }
+    btnIniciar.disabled = false;
+    btnParar.disabled = true;
+  });
+
+  // Fallback por CPF
+  const btnBuscarCpf = document.getElementById('btn-buscar-cpf');
+  const elCpfBusca = document.getElementById('cpf-busca');
+  const elListaCpf = document.getElementById('lista-cpf');
+
+  btnBuscarCpf.addEventListener('click', async () => {
+    const cpf = elCpfBusca.value.replace(/\D/g, '');
+    elListaCpf.innerHTML = '';
+    if (!cpf) return;
+
+    const resposta = await fetch('/admin/checagem/buscar-cpf', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ cpf }),
+    });
+    const dados = await resposta.json();
+
+    if (!resposta.ok) {
+      elListaCpf.innerHTML = `<span class="badge badge-danger">${dados.erro}</span>`;
+      return;
+    }
+
+    elListaCpf.innerHTML = dados.ingressos.map((ingresso) => {
+      const jaUsado = ingresso.statusCheckin === 'utilizado';
+      return `
+        <div class="form-panel" style="margin-top:10px; padding:12px;">
+          <p><strong>${ingresso.partida.nome}</strong> · ${formatarDataHora(ingresso.partida.dataPartida)}</p>
+          <p class="muted" style="font-size:12px;">Quantidade: ${ingresso.quantidade}</p>
+          ${jaUsado
+            ? `<span class="badge badge-pending">Já utilizado em ${formatarDataHora(ingresso.dataCheckin)}</span>`
+            : `<button type="button" class="btn btn-primary" data-validar-compra="${ingresso.id}">Confirmar entrada</button>`}
+        </div>
+      `;
+    }).join('');
+
+    elListaCpf.querySelectorAll('[data-validar-compra]').forEach((botao) => {
+      botao.addEventListener('click', () => validarManual(botao.dataset.validarCompra));
+    });
+  });
+})();
+</script>
+</body>
+</html>

@@ -7,6 +7,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/css/style.css" />
+<script src="https://sdk.mercadopago.com/js/v2"></script>
 </head>
 <body>
 
@@ -17,79 +18,78 @@
   </div>
 </div>
 
-<header class="nav">
-  <div class="wrap">
-    <ul class="nav-links">
-      <li><a href="/">Clube</a></li>
-      <li><a href="/#noticias">Notícias</a></li>
-      <li><a href="/#elenco">Elenco</a></li>
-    </ul>
-    <div class="nav-crest" aria-hidden="true">ECAN</div>
-    <ul class="nav-links" style="justify-content:flex-end;">
-      <li><a href="/estadio">Estádio</a></li>
-      <li><a href="/ingressos" aria-current="page">Ingressos</a></li>
-      <li><a href="/planos">Sócio</a></li>
-      <li><a href="/login">Login</a></li>
-    </ul>
-    <button class="nav-toggle" aria-label="Abrir menu" aria-expanded="false">☰</button>
-  </div>
-</header>
+<%- include('partials/nav-publico', { active: 'ingressos' }) %>
 
 <main class="section">
   <div class="wrap">
     <span class="eyebrow">Ingressos</span>
     <h1 style="font-size:26px; margin-top:6px;">Garanta seu lugar no Ninho da Águia</h1>
-    <p class="muted" style="margin-top:8px;">Sócios têm desconto e prioridade na compra.</p>
+    <p class="muted" style="margin-top:8px;">
+      <% if (typeof desconto !== 'undefined' && desconto > 0) { %>
+        Como sócio, você já está com <%= Math.round(desconto * 100) %>% de desconto aplicado nos preços abaixo.
+      <% } else { %>
+        Sócios têm desconto e prioridade na compra.
+      <% } %>
+    </p>
 
     <div class="tickets-grid" style="margin-top:28px;">
 
-      <article class="ticket-card">
-        <span class="eyebrow">Campeonato Sul-Mato-Grossense</span>
-        <h3 style="font-size:16px; text-transform:none; margin-top:6px;">ECAN <span class="muted">×</span> Operário FC</h3>
-        <ul class="ticket-meta">
-          <li>📅 12/02/2026 — 19:30</li>
-          <li>📍 Estádio Ninho da Águia</li>
-        </ul>
-        <div class="ticket-avail"><span style="width:70%"></span></div>
-        <p class="muted" style="font-size:12px; margin:6px 0 14px;">Disponíveis: 2.400/8.000</p>
-        <div class="ticket-buy">
-          <strong class="ticket-price">R$ 30</strong>
-          <button class="btn btn-primary" data-comprar-ingresso>Comprar</button>
-        </div>
-        <p class="ticket-status muted" style="font-size:12px; margin-top:8px;"></p>
-      </article>
+      <% if (!ingressos || ingressos.length === 0) { %>
+        <p class="muted">Nenhuma partida com ingressos à venda no momento. Volte em breve!</p>
+      <% } %>
 
-      <article class="ticket-card">
-        <span class="eyebrow">Campeonato Sul-Mato-Grossense</span>
-        <h3 style="font-size:16px; text-transform:none; margin-top:6px;">ECAN <span class="muted">×</span> Costa Rica FC</h3>
-        <ul class="ticket-meta">
-          <li>📅 19/02/2026 — 20:00</li>
-          <li>📍 Estádio Ninho da Águia</li>
-        </ul>
-        <div class="ticket-avail"><span style="width:44%"></span></div>
-        <p class="muted" style="font-size:12px; margin:6px 0 14px;">Disponíveis: 3.500/8.000</p>
-        <div class="ticket-buy">
-          <strong class="ticket-price">R$ 30</strong>
-          <button class="btn btn-primary" data-comprar-ingresso>Comprar</button>
-        </div>
-        <p class="ticket-status muted" style="font-size:12px; margin-top:8px;"></p>
-      </article>
+      <% (ingressos || []).forEach(function(i) { %>
+        <% const data = new Date(i.dataPartida); %>
+        <% const dataFmt = data.toLocaleDateString('pt-BR'); %>
+        <% const horaFmt = data.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }); %>
+        <% const temDesconto = i.valorComDesconto < i.valor; %>
 
-      <article class="ticket-card">
-        <span class="eyebrow">Campeonato Sul-Mato-Grossense</span>
-        <h3 style="font-size:16px; text-transform:none; margin-top:6px;">ECAN <span class="muted">×</span> Comercial-MS</h3>
-        <ul class="ticket-meta">
-          <li>📅 26/02/2026 — 16:00</li>
-          <li>📍 Fora de casa</li>
-        </ul>
-        <div class="ticket-avail"><span style="width:90%"></span></div>
-        <p class="muted" style="font-size:12px; margin:6px 0 14px;">Disponíveis: 720/800</p>
-        <div class="ticket-buy">
-          <strong class="ticket-price">R$ 25</strong>
-          <button class="btn btn-primary" data-comprar-ingresso>Comprar</button>
-        </div>
-        <p class="ticket-status muted" style="font-size:12px; margin-top:8px;"></p>
-      </article>
+        <article class="ticket-card">
+          <span class="eyebrow"><%= i.competicao || 'Partida' %></span>
+          <h3 style="font-size:16px; text-transform:none; margin-top:6px;"><%= i.partida %></h3>
+          <ul class="ticket-meta">
+            <li>📅 <%= dataFmt %> — <%= horaFmt %></li>
+            <li>📍 <%= i.local %></li>
+          </ul>
+          <div class="ticket-avail"><span style="width:<%= i.percentVendido %>%"></span></div>
+          <p class="muted" style="font-size:12px; margin:6px 0 14px;">
+            Disponíveis: <%= i.disponiveis.toLocaleString('pt-BR') %>/<%= i.quantidadeTotal.toLocaleString('pt-BR') %>
+          </p>
+
+          <div class="ticket-buy">
+            <div>
+              <% if (temDesconto) { %>
+                <span class="muted" style="text-decoration:line-through; font-size:12px; display:block;">
+                  R$ <%= i.valor.toFixed(2).replace('.', ',') %>
+                </span>
+              <% } %>
+              <strong class="ticket-price">R$ <%= i.valorComDesconto.toFixed(2).replace('.', ',') %></strong>
+            </div>
+
+            <% if (i.esgotado) { %>
+              <button class="btn btn-ghost" disabled>Esgotado</button>
+            <% } else if (typeof usuario !== 'undefined' && usuario) { %>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <input
+                  type="number"
+                  class="qty-input"
+                  min="1"
+                  max="<%= Math.min(10, i.disponiveis) %>"
+                  value="1"
+                  data-ingresso-qty="<%= i.id %>"
+                  aria-label="Quantidade"
+                />
+                <button class="btn btn-primary" data-comprar-ingresso data-ingresso-id="<%= i.id %>">Comprar</button>
+              </div>
+            <% } else { %>
+              <a href="/login" class="btn btn-primary">Entrar para comprar</a>
+            <% } %>
+          </div>
+
+          <p class="ticket-status muted" style="font-size:12px; margin-top:8px;"></p>
+          <div id="wallet_ingresso_<%= i.id %>" style="margin-top:10px;"></div>
+        </article>
+      <% }) %>
 
     </div>
   </div>
@@ -97,16 +97,62 @@
 
 <footer class="site-footer">
   <div class="wrap">
-    <p class="muted" style="max-width:420px; font-size:13px;">Fundado em 1972, o Esporte Clube Águia Negra é o orgulho do Rio Brilhante.</p>
+    <p class="muted" style="max-width:420px; font-size:13px;">Fundado em 1971, o Esporte Clube Águia Negra é o orgulho do Rio Brilhante.</p>
     <div class="sponsors">
       <span>Patrocinadores</span>
       <strong>Sicredi</strong><strong>Airpon</strong><strong>Lojas MM</strong><strong>FFMS</strong>
     </div>
     <div class="contact">contato@ecan.com.br<br />(67) 3000-0000</div>
   </div>
-  <div class="legal">© 2026 Esporte Clube Águia Negra — Fundado em 1972</div>
+  <div class="legal">© 2026 Esporte Clube Águia Negra — Fundado em 1971</div>
 </footer>
 
 <script src="/js/main.js"></script>
+
+<% if (typeof usuario !== 'undefined' && usuario) { %>
+  <script>
+    const mp = new MercadoPago('APP_USR-5776e051-d303-4306-83eb-e275bb5a1e68');
+
+    document.querySelectorAll('[data-comprar-ingresso]').forEach((botao) => {
+      botao.addEventListener('click', async () => {
+        const ingressoId = botao.dataset.ingressoId;
+        const card = botao.closest('.ticket-card');
+        const qtyInput = card.querySelector('[data-ingresso-qty]');
+        const quantidade = qtyInput ? Number(qtyInput.value) || 1 : 1;
+        const status = card.querySelector('.ticket-status');
+
+        botao.disabled = true;
+        botao.textContent = 'Carregando...';
+
+        try {
+          const resposta = await fetch('/pagamento/ingresso/criar', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ ingressoId, quantidade }),
+          });
+          const dados = await resposta.json();
+
+          if (!resposta.ok) {
+            if (status) status.textContent = dados.erro || 'Não foi possível iniciar a compra.';
+            botao.disabled = false;
+            botao.textContent = 'Comprar';
+            return;
+          }
+
+          botao.style.display = 'none';
+          if (qtyInput) qtyInput.disabled = true;
+
+          mp.bricks().create('wallet', `wallet_ingresso_${ingressoId}`, {
+            initialization: { preferenceId: dados.preferenceId },
+          });
+        } catch (erro) {
+          if (status) status.textContent = 'Erro de conexão. Tente novamente.';
+          botao.disabled = false;
+          botao.textContent = 'Comprar';
+        }
+      });
+    });
+  </script>
+<% } %>
 </body>
 </html>

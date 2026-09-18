@@ -33,7 +33,7 @@
                     <th>Nome</th>
                     <th>E-mail</th>
                     <th>Tipo</th>
-                    <th>Ações (Administrador)</th>
+                    <th>Alterar tipo</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -57,12 +57,14 @@
                         </span>
                       </td>
                       <td>
-                        <form action="/admin/usuarios/<%= u.id %>/tipo" method="POST" class="tipo-switch">
-                          <button type="submit" 
-                            class="tipo-pill <% if (u.tipo === 'admin') { %>tipo-pill--ativo<% } %>"
-                            title="<%= u.tipo === 'admin' ? 'Clique para remover privilégio de Admin' : 'Clique para tornar Admin' %>">
-                            <%= u.tipo === 'admin' ? 'Admin (Ativo)' : 'Tornar Admin' %>
-                          </button>
+                        <form action="/admin/usuarios/<%= u.id %>/tipo" method="POST" class="tipo-form">
+                          <select name="tipo" class="form-control">
+                            <option value="comum" <%= u.tipo === 'comum' ? 'selected' : '' %>>Comum</option>
+                            <option value="socio" <%= u.tipo === 'socio' ? 'selected' : '' %>>Sócio</option>
+                            <option value="portaria" <%= u.tipo === 'portaria' ? 'selected' : '' %>>Portaria</option>
+                            <option value="admin" <%= u.tipo === 'admin' ? 'selected' : '' %>>Admin</option>
+                          </select>
+                          <button type="submit" class="btn btn-secondary">Salvar</button>
                         </form>
                       </td>
                     </tr>

@@ -1,16 +1,27 @@
+<%
+  // 'portaria' só enxerga a aba de checagem — o restante do menu é escondido
+  // (as rotas em si também bloqueiam via `apenasAdmin`, isso aqui é só a UI).
+  const ehPortaria = typeof usuarioTipo !== 'undefined' && usuarioTipo === 'portaria';
+%>
 <aside class="admin-sidebar">
   <div class="brand">
     <div class="nav-crest" style="width:32px;height:32px;font-size:10px;">ECAN</div>
     <span>Painel admin</span>
   </div>
   <ul class="admin-nav">
-    <li><a href="/admin/dashboard" <% if (active === 'dashboard') { %>aria-current="page"<% } %>>Dashboard</a></li>
-    <li><a href="/admin/usuarios" <% if (active === 'usuarios') { %>aria-current="page"<% } %>>Usuários</a></li>
-    <li><a href="/admin/socios" <% if (active === 'socios') { %>aria-current="page"<% } %>>Sócios</a></li>
-    <li><a href="/admin/noticias" <% if (active === 'noticias') { %>aria-current="page"<% } %>>Notícias</a></li>
-    <li><a href="/admin/elenco" <% if (active === 'elenco') { %>aria-current="page"<% } %>>Elenco</a></li>
-    <li><a href="/admin/pagamentos" <% if (active === 'pagamentos') { %>aria-current="page"<% } %>>Pagamentos</a></li>
-    <li><a href="/admin/relatorios" <% if (active === 'relatorios') { %>aria-current="page"<% } %>>Relatórios</a></li>
+    <% if (ehPortaria) { %>
+      <li><a href="/admin/checagem" <% if (active === 'checagem') { %>aria-current="page"<% } %>>Checagem de ingressos</a></li>
+    <% } else { %>
+      <li><a href="/admin/dashboard" <% if (active === 'dashboard') { %>aria-current="page"<% } %>>Dashboard</a></li>
+      <li><a href="/admin/usuarios" <% if (active === 'usuarios') { %>aria-current="page"<% } %>>Usuários</a></li>
+      <li><a href="/admin/socios" <% if (active === 'socios') { %>aria-current="page"<% } %>>Sócios</a></li>
+      <li><a href="/admin/ingressos" <% if (active === 'ingressos') { %>aria-current="page"<% } %>>Ingressos</a></li>
+      <li><a href="/admin/checagem" <% if (active === 'checagem') { %>aria-current="page"<% } %>>Checagem de ingressos</a></li>
+      <li><a href="/admin/noticias" <% if (active === 'noticias') { %>aria-current="page"<% } %>>Notícias</a></li>
+      <li><a href="/admin/elenco" <% if (active === 'elenco') { %>aria-current="page"<% } %>>Elenco</a></li>
+      <li><a href="/admin/pagamentos" <% if (active === 'pagamentos') { %>aria-current="page"<% } %>>Pagamentos</a></li>
+      <li><a href="/admin/relatorios" <% if (active === 'relatorios') { %>aria-current="page"<% } %>>Relatórios</a></li>
+    <% } %>
   </ul>
   <a href="/logout" class="logout">← Sair</a>
 </aside>

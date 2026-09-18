@@ -1,7 +1,6 @@
 const bcrypt = require('bcrypt');
 
 const Usuario = require('./src/models/Usuario');
-const Cliente = require('./src/models/Cliente');
 const SocioTorcedor = require('./src/models/SocioTorcedor');
 const Noticia = require('./src/models/Noticia');
 const Jogador = require('./src/models/Jogador');
@@ -23,9 +22,9 @@ async function seed() {
     }
 
     if (await SocioTorcedor.count() === 0) {
-        const cliente = await Cliente.create({
-            nome: 'Cliente Teste',
-            email: 'cliente@teste.com',
+        const socio = await SocioTorcedor.create({
+            nome: 'Sócio Teste',
+            email: 'socio@teste.com',
             senha: '123456',
             cpf: '000.000.000-00',
             telefone: '(67) 99999-0000'

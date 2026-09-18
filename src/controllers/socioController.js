@@ -2,7 +2,6 @@ const bcrypt = require('bcrypt');
 const { Op } = require('sequelize');
 const { Usuario, SocioTorcedor } = require('../models/Index');
 
-// GET /admin/socios
 async function listarSocios(req, res) {
     try {
         const termo = (req.query.busca || '').trim();
@@ -32,7 +31,6 @@ async function listarSocios(req, res) {
     }
 }
 
-// GET /admin/socios/novo
 async function formNovoSocio(req, res) {
     try {
         const sociosAtuais = await SocioTorcedor.findAll({ attributes: ['usuarioId'] });

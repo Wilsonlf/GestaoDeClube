@@ -176,6 +176,8 @@ input:focus-visible {
 .btn-gold:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(201,162,74,.3); }
 .btn-ghost { background: transparent; color: var(--bone); border: 1px solid var(--line); }
 .btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
+.btn-secondary { background: var(--black-soft); color: var(--bone); border: 1px solid var(--line); }
+.btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
 .btn:active { transform: translateY(1px); }
 .btn:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
 .btn-block { width: 100%; }
@@ -501,6 +503,17 @@ input:focus-visible {
   padding-top: 14px;
 }
 .ticket-price { font-family: var(--font-display); font-size: 22px; color: var(--gold); }
+.qty-input {
+  width: 52px;
+  background: var(--black-soft);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--bone);
+  font-size: 14px;
+  padding: 10px 8px;
+  text-align: center;
+}
+.qty-input:focus { border-color: var(--gold); outline: none; }
 
 /* =========================================================
    PAINEL ADMINISTRATIVO
@@ -630,6 +643,19 @@ input:focus-visible {
 .badge-pending { background: rgba(201,138,44,.18); color: var(--pending); }
 .badge-danger { background: rgba(192,57,43,.18); color: #e0685b; }
 
+.status-tag {
+  display: inline-block;
+  font-size: 11px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  letter-spacing: .02em;
+  text-transform: capitalize;
+}
+.status-ativo { background: rgba(47,158,88,.15); color: #4fce80; }
+.status-inativo { background: rgba(125,123,118,.18); color: var(--muted); }
+.status-pendente { background: rgba(201,138,44,.18); color: var(--pending); }
+.status-encerrado { background: rgba(192,57,43,.18); color: #e0685b; }
+
 .toolbar { display: flex; gap: 10px; align-items: center; }
 .search-input {
   background: var(--black-soft);
@@ -676,37 +702,22 @@ input:focus-visible {
   .admin-sidebar .logout { display: none; }
 }
 
-.tipo-switch {
+.tipo-form {
   display: inline-flex;
-  border-radius: 20px;
-  background: #f1f1f1;
-  padding: 3px;
-  gap: 2px;
+  align-items: center;
+  gap: 8px;
 }
 
-.tipo-pill {
-  border: none;
-  background: transparent;
-  padding: 5px 12px;
+.tipo-form select.form-control {
+  width: auto;
+  min-width: 120px;
+  padding: 6px 10px;
   font-size: 12px;
-  font-weight: 600;
-  border-radius: 16px;
-  cursor: pointer;
-  color: #666;
-  transition: background .15s, color .15s;
 }
 
-.tipo-pill:hover {
-  background: #e2e2e2;
-}
-
-.tipo-pill--ativo {
-  background: var(--red-bright);
-  color: #fff;
-}
-
-.tipo-pill--ativo:hover {
-  background: var(--red-bright);
+.tipo-form .btn {
+  padding: 6px 14px;
+  font-size: 12px;
 }
 
 /* ==========================================================================
@@ -794,3 +805,28 @@ input:focus-visible {
   border: 1px solid var(--danger);
   color: var(--bone);
 }
+
+/* =========================
+   RETORNO DO PAGAMENTO
+   ========================= */
+
+.status-card { max-width: 420px; }
+
+.status-icon {
+  width: 64px;
+  height: 64px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 28px;
+  line-height: 1;
+}
+
+.status-icon--sucesso { background: rgba(47,158,88,.15); border: 1px solid var(--success); color: var(--success); }
+.status-icon--pendente { background: rgba(201,138,44,.15); border: 1px solid var(--pending); color: var(--pending); }
+.status-icon--erro { background: rgba(192,57,43,.15); border: 1px solid var(--danger); color: var(--danger); }
+
+.status-card h1 { font-size: 20px; margin: 0 0 8px; }
+.status-msg { color: var(--bone-dim); font-size: 14px; margin: 0 0 24px; }
+.status-redirect { margin-top: 14px; font-size: 12px; color: var(--muted); }

@@ -21,30 +21,7 @@
   </div>
 </div>
 
-<header class="nav">
-  <div class="wrap">
-    <ul class="nav-links">
-      <li><a href="/" aria-current="page">Clube</a></li>
-      <li><a href="#noticias">Notícias</a></li>
-      <li><a href="#elenco">Elenco</a></li>
-    </ul>
-    <div class="nav-crest" aria-hidden="true">ECAN</div>
-   <ul class="nav-links" style="justify-content:flex-end;">
-      <li><a href="/estadio">Estádio</a></li>
-      <li><a href="/ingressos">Ingressos</a></li>
-      <li><a href="/planos">Sócio</a></li>
-    <% if (usuarioLogado) { %>
-        <li class="nav-user">
-          <span><%= usuarioLogado.nome.split(' ')[0] %></span>
-        </li>
-        <li><a href="/logout">Sair</a></li>
-      <% } else { %>
-        <li><a href="/login">Login</a></li>
-      <% } %>
-    </ul>
-    <button class="nav-toggle" aria-label="Abrir menu" aria-expanded="false">☰</button>
-  </div>
-</header>
+<%- include('partials/nav-publico', { active: 'clube' }) %>
 
 <main>
 
@@ -173,7 +150,7 @@
       (67) 3000-0000
     </div>
   </div>
-  <div class="legal">© 2026 Esporte Clube Águia Negra — Fundado em 1972</div>
+  <div class="legal">© 2026 Esporte Clube Águia Negra — Fundado em 1971</div>
 </footer>
 
 <script src="/js/main.js"></script>

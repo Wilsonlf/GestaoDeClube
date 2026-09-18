@@ -13,18 +13,23 @@ async function listarUsuarios(req, res) {
     }
 }
 
+const TIPOS_VALIDOS = ['comum', 'socio', 'admin', 'portaria'];
+
 async function atualizarTipo(req, res) {
     try {
         const { id } = req.params;
-        const usuario = await Usuario.findByPk(id);
+        const { tipo } = req.body;
 
+        if (!TIPOS_VALIDOS.includes(tipo)) {
+            return res.status(400).send('Tipo de usuário inválido');
+        }
+
+        const usuario = await Usuario.findByPk(id);
         if (!usuario) {
             return res.status(404).send('Usuário não encontrado');
         }
 
-        const novoTipo = usuario.tipo === 'admin' ? 'comum' : 'admin';
-
-        await usuario.update({ tipo: novoTipo });
+        await usuario.update({ tipo });
         res.redirect('/admin/usuarios');
     } catch (erro) {
         console.error(erro);

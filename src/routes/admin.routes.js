@@ -5,17 +5,15 @@ const adminController = require('../controllers/adminController');
 const socioController = require('../controllers/socioController');
 const ingressoController = require('../controllers/ingressoController');
 const checagemController = require('../controllers/checagemController');
+const noticiaController = require('../controllers/noticiaController');
+const jogadorController = require('../controllers/jogadorController');
 const { apenasAdmin } = require('../middlewares/auth');
+const { uploadFotoJogador } = require('../middlewares/upload');
 
 const SocioTorcedor = require('../models/SocioTorcedor');
 const Noticia = require('../models/Noticia');
-const Jogador = require('../models/Jogador');
 const Pagamento = require('../models/Pagamento');
 
-// Este router é montado em /admin já autenticado, mas aberto tanto pra
-// 'admin' quanto pra 'portaria' (ver app.js). A partir daqui, cada rota que
-// não for de checagem precisa repetir `apenasAdmin` pra barrar a portaria —
-// ela só pode passar pelas rotas de /checagem lá embaixo.
 router.get('/dashboard', apenasAdmin, async (req, res) => {
     try {
         const totalSocios = await SocioTorcedor.count();
@@ -34,25 +32,19 @@ router.get('/dashboard', apenasAdmin, async (req, res) => {
     }
 });
 
-router.get('/noticias', apenasAdmin, async (req, res) => {
-    try {
-        const noticias = await Noticia.findAll({ order: [['createdAt', 'DESC']] });
-        res.render('admin/noticias', { noticias });
-    } catch (erro) {
-        console.error(erro);
-        res.status(500).send('Erro ao carregar notícias');
-    }
-});
+router.get('/noticias', apenasAdmin, noticiaController.listarNoticias);
+router.get('/noticias/novo', apenasAdmin, noticiaController.formNovaNoticia);
+router.post('/noticias', apenasAdmin, noticiaController.criarNoticia);
+router.get('/noticias/:id/editar', apenasAdmin, noticiaController.formEditarNoticia);
+router.post('/noticias/:id', apenasAdmin, noticiaController.atualizarNoticia);
+router.post('/noticias/:id/excluir', apenasAdmin, noticiaController.excluirNoticia);
 
-router.get('/elenco', apenasAdmin, async (req, res) => {
-    try {
-        const jogadores = await Jogador.findAll({ order: [['nome', 'ASC']] });
-        res.render('admin/elenco', { jogadores });
-    } catch (erro) {
-        console.error(erro);
-        res.status(500).send('Erro ao carregar elenco');
-    }
-});
+router.get('/elenco', apenasAdmin, jogadorController.listarJogadores);
+router.get('/elenco/novo', apenasAdmin, jogadorController.formNovoJogador);
+router.post('/elenco', apenasAdmin, uploadFotoJogador, jogadorController.criarJogador);
+router.get('/elenco/:id/editar', apenasAdmin, jogadorController.formEditarJogador);
+router.post('/elenco/:id', apenasAdmin, uploadFotoJogador, jogadorController.atualizarJogador);
+router.post('/elenco/:id/excluir', apenasAdmin, jogadorController.excluirJogador);
 
 router.get('/socios', apenasAdmin, socioController.listarSocios);
 router.get('/socios/novo', apenasAdmin, socioController.formNovoSocio);
@@ -61,7 +53,6 @@ router.get('/socios/:id/editar', apenasAdmin, socioController.formEditarSocio);
 router.post('/socios/:id', apenasAdmin, socioController.atualizarSocio);
 router.post('/socios/:id/excluir', apenasAdmin, socioController.excluirSocio);
 
-// /vendas precisa vir antes de /:id/editar pra não ser interpretada como um id.
 router.get('/ingressos/vendas', apenasAdmin, ingressoController.listarVendasIngresso);
 router.get('/ingressos', apenasAdmin, ingressoController.listarIngressos);
 router.get('/ingressos/novo', apenasAdmin, ingressoController.formNovoIngresso);
@@ -78,7 +69,6 @@ router.get('/relatorios', apenasAdmin, (req, res) => {
 router.get('/usuarios', apenasAdmin, adminController.listarUsuarios);
 router.post('/usuarios/:id/tipo', apenasAdmin, adminController.atualizarTipo);
 
-// Checagem de ingressos: única área do /admin liberada também pro tipo 'portaria'.
 router.get('/checagem', checagemController.formChecagem);
 router.post('/checagem/validar', checagemController.validarPorHash);
 router.post('/checagem/buscar-cpf', checagemController.buscarPorCpf);

@@ -72,7 +72,7 @@
 
   let leitor = null;
   let escaneando = false;
-  let travaEnvio = false; // evita disparar a mesma leitura várias vezes seguidas
+  let travaEnvio = false;
 
   function formatarDataHora(iso) {
     if (!iso) return '';
@@ -137,8 +137,6 @@
     try {
       await validarPorHash(textoLido.trim());
     } finally {
-      // Pequena pausa pra não reenviar a mesma leitura várias vezes por segundo
-      // enquanto o QR ainda está na frente da câmera.
       setTimeout(() => { travaEnvio = false; }, 2500);
     }
   }
@@ -157,7 +155,7 @@
         { facingMode: 'environment' },
         { fps: 10, qrbox: 240 },
         (textoLido) => aoLerQr(textoLido),
-        () => { /* frame sem QR legível — ignora, é o caso comum */ }
+        () => {}
       );
       escaneando = true;
       btnIniciar.disabled = true;
@@ -178,7 +176,6 @@
     btnParar.disabled = true;
   });
 
-  // Fallback por CPF
   const btnBuscarCpf = document.getElementById('btn-buscar-cpf');
   const elCpfBusca = document.getElementById('cpf-busca');
   const elListaCpf = document.getElementById('lista-cpf');

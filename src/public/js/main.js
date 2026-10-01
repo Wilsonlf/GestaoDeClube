@@ -1,12 +1,22 @@
 document.addEventListener("DOMContentLoaded", () => {
   const toggle = document.querySelector(".nav-toggle");
-  const links = document.querySelector(".nav-links");
+  const links = document.querySelector(".nav-menu");
   if (toggle && links) {
     toggle.addEventListener("click", () => {
       const open = links.classList.toggle("open");
       toggle.setAttribute("aria-expanded", open ? "true" : "false");
     });
   }
+
+  document.querySelectorAll("[data-carousel-target]").forEach((botao) => {
+    botao.addEventListener("click", () => {
+      const trilha = document.getElementById(botao.dataset.carouselTarget);
+      if (!trilha) return;
+      const card = trilha.querySelector(":scope > *");
+      const passo = card ? card.getBoundingClientRect().width + 18 : trilha.clientWidth * 0.8;
+      trilha.scrollBy({ left: passo * Number(botao.dataset.dir), behavior: "smooth" });
+    });
+  });
 
   const toggleSenha = document.querySelector("[data-toggle-senha]");
   if (toggleSenha) {
@@ -18,9 +28,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // A compra de ingresso de verdade (fetch + Mercado Pago) está no <script>
-  // inline de src/views/ingressos.ejs, porque só é montada quando há um
-  // usuário logado (mesmo padrão usado em planos.ejs para os planos).
 
   const loginForm = document.querySelector("#login-form");
   if (loginForm) {

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Notícias · Águia Negra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<%- include('partials/topbar') %>
+
+<%- include('partials/nav-publico', { active: 'noticias' }) %>
+
+<main class="section">
+  <div class="wrap">
+    <span class="eyebrow">Fique por dentro</span>
+    <h1 style="font-size:26px; margin-top:6px; margin-bottom:22px;">Notícias</h1>
+
+    <% if (!noticias || noticias.length === 0) { %>
+      <p class="muted">Nenhuma notícia publicada ainda.</p>
+    <% } else { %>
+      <div class="news-grid">
+        <% noticias.forEach(function(n) { %>
+          <a class="card" href="/noticias/<%= n.id %>" style="display:block; color:inherit; text-decoration:none;">
+            <span class="muted" style="font-size:12px;">
+              <%= n.createdAt ? new Date(n.createdAt).toLocaleDateString('pt-BR') : '' %>
+            </span>
+            <h3 style="font-size:16px; text-transform:none; margin-top:6px;"><%= n.titulo %></h3>
+            <p class="muted" style="font-size:13px; margin-top:8px;">
+              <%= n.conteudo.length > 120 ? n.conteudo.slice(0, 120) + '…' : n.conteudo %>
+            </p>
+          </a>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p class="muted" style="max-width:420px; font-size:13px;">Fundado em 1972, o Esporte Clube Águia Negra é o orgulho do Rio Brilhante.</p>
+    <div class="sponsors">
+      <span>Patrocinadores</span>
+      <strong>Sicredi</strong><strong>Airpon</strong><strong>Lojas MM</strong><strong>FFMS</strong>
+    </div>
+    <div class="contact">contato@ecan.com.br<br />(67) 3000-0000</div>
+  </div>
+  <div class="legal">© 2026 Esporte Clube Águia Negra — Fundado em 1971</div>
+</footer>
+
+<script src="/js/main.js"></script>
+</body>
+</html>

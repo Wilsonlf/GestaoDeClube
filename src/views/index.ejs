@@ -10,22 +10,12 @@
 </head>
 <body>
 
-<div class="topbar">
-  <div class="wrap">
-    <span>Esporte Clube Águia Negra · Rio Brilhante, MS</span>
-    <span class="social">
-      <a href="#" aria-label="Instagram">Instagram</a>
-      <a href="#" aria-label="Facebook">Facebook</a>
-      <a href="#" aria-label="YouTube">YouTube</a>
-    </span>
-  </div>
-</div>
+<%- include('partials/topbar') %>
 
 <%- include('partials/nav-publico', { active: 'clube' }) %>
 
 <main>
 
-  <!-- HERO: jogo em destaque + classificação, como no mockup -->
   <section class="section" style="padding-top:32px; padding-bottom:32px;">
     <div class="wrap hero-grid">
       <div class="hero-highlight">
@@ -36,40 +26,26 @@
       </div>
 
       <aside class="card next-match">
-        <span class="eyebrow">Campeonato Sul-Mato-Grossense</span>
-        <div class="match-row">
-          <div class="match-team">
-            <div class="crest-sm">ECAN</div>
-            <strong>Águia Negra</strong>
+        <% if (proximoJogo) { %>
+          <span class="eyebrow"><%= proximoJogo.competicao || 'Próximo jogo' %></span>
+          <div class="match-row">
+            <div class="crest-sm" aria-hidden="true">ECAN</div>
+            <div class="match-date">
+              <strong><%= new Date(proximoJogo.dataPartida).toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' }) %></strong>
+              <span class="muted"><%= new Date(proximoJogo.dataPartida).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) %>h</span>
+            </div>
           </div>
-          <div class="match-date">
-            <strong>05/02</strong>
-            <span class="muted">19:30h</span>
-          </div>
-          <div class="match-team">
-            <div class="crest-sm crest-sm--alt">CVI</div>
-            <strong>Comercial-MS</strong>
-          </div>
-        </div>
-
-        <h4 style="font-size:13px; margin-top:20px; margin-bottom:10px;">Classificação</h4>
-        <table class="standings">
-          <thead>
-            <tr><th>#</th><th>Clube</th><th>P</th></tr>
-          </thead>
-          <tbody>
-            <tr class="is-club"><td>1</td><td>Águia Negra</td><td>18</td></tr>
-            <tr><td>2</td><td>Comercial-MS</td><td>16</td></tr>
-            <tr><td>3</td><td>Coxim FC</td><td>14</td></tr>
-            <tr><td>4</td><td>Costa Rica EC</td><td>11</td></tr>
-            <tr><td>5</td><td>Operário SM</td><td>9</td></tr>
-          </tbody>
-        </table>
+          <p style="margin-top:14px; font-size:14px; font-weight:600;"><%= proximoJogo.partida %></p>
+          <p class="muted" style="font-size:13px; margin-top:4px;"><%= proximoJogo.local %></p>
+          <a href="/ingressos" class="btn btn-ghost" style="margin-top:16px;">Comprar ingresso</a>
+        <% } else { %>
+          <span class="eyebrow">Próximo jogo</span>
+          <p class="muted" style="margin-top:14px;">Nenhuma partida agendada no momento.</p>
+        <% } %>
       </aside>
     </div>
   </section>
 
-  <!-- BANNER SÓCIO — corte de pennant como elemento assinatura -->
   <section class="pennant-cut">
     <div class="wrap" style="display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap;">
       <div>
@@ -80,55 +56,60 @@
     </div>
   </section>
 
-  <!-- ELENCO -->
   <section class="section" id="elenco">
     <div class="wrap">
       <span class="eyebrow">Temporada 2026</span>
       <h2 style="font-size:24px; margin-top:6px; margin-bottom:22px;">Nosso elenco</h2>
-      <div class="squad-grid">
-        <article class="player-card">
-          <div class="player-photo">2026</div>
-          <strong>Rafael Costa</strong>
-          <span class="muted">Atacante</span>
-        </article>
-        <article class="player-card">
-          <div class="player-photo">2026</div>
-          <strong>Bruno Lima</strong>
-          <span class="muted">Zagueiro</span>
-        </article>
-        <article class="player-card">
-          <div class="player-photo">2026</div>
-          <strong>Lucas Oliveira</strong>
-          <span class="muted">Lateral-direito</span>
-        </article>
-        <article class="player-card">
-          <div class="player-photo">2026</div>
-          <strong>Pedro Henrique</strong>
-          <span class="muted">Meia</span>
-        </article>
-      </div>
+      <% if (!jogadores || jogadores.length === 0) { %>
+        <p class="muted">Nenhum jogador cadastrado ainda.</p>
+      <% } else { %>
+        <div class="carousel">
+          <button type="button" class="carousel-arrow" aria-label="Ver jogadores anteriores" data-carousel-target="elenco-track" data-dir="-1">‹</button>
+          <div class="carousel-track" id="elenco-track">
+            <% jogadores.forEach(function(j) { %>
+              <article class="player-card">
+                <div class="player-photo">
+                  <% if (j.foto) { %>
+                    <img src="<%= j.foto %>" alt="<%= j.nome %>" style="width:100%; height:100%; object-fit:cover;" />
+                  <% } else { %>
+                    <%= j.numero || '' %>
+                  <% } %>
+                </div>
+                <strong><%= j.nome %></strong>
+                <span class="muted"><%= j.posicao || '—' %></span>
+              </article>
+            <% }) %>
+          </div>
+          <button type="button" class="carousel-arrow" aria-label="Ver próximos jogadores" data-carousel-target="elenco-track" data-dir="1">›</button>
+        </div>
+      <% } %>
     </div>
   </section>
 
-  <!-- NOTÍCIAS -->
   <section class="section" id="noticias" style="padding-top:0;">
     <div class="wrap">
-      <span class="eyebrow">Fique por dentro</span>
-      <h2 style="font-size:24px; margin-top:6px; margin-bottom:22px;">Últimas notícias</h2>
-      <div class="news-grid">
-        <article class="card">
-          <span class="muted" style="font-size:12px;">03/02/2026</span>
-          <h3 style="font-size:16px; text-transform:none; margin-top:6px;">Reforço de peso assina contrato até 2027</h3>
-        </article>
-        <article class="card">
-          <span class="muted" style="font-size:12px;">30/01/2026</span>
-          <h3 style="font-size:16px; text-transform:none; margin-top:6px;">Ingressos para a próxima rodada já estão à venda</h3>
-        </article>
-        <article class="card">
-          <span class="muted" style="font-size:12px;">28/01/2026</span>
-          <h3 style="font-size:16px; text-transform:none; margin-top:6px;">Categoria de base conquista título estadual</h3>
-        </article>
+      <div style="display:flex; align-items:flex-end; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:22px;">
+        <div>
+          <span class="eyebrow">Fique por dentro</span>
+          <h2 style="font-size:24px; margin-top:6px;">Últimas notícias</h2>
+        </div>
+        <a href="/noticias" class="btn btn-ghost">Ver todas</a>
       </div>
+
+      <% if (!noticiasRecentes || noticiasRecentes.length === 0) { %>
+        <p class="muted">Nenhuma notícia publicada ainda.</p>
+      <% } else { %>
+        <div class="news-grid">
+          <% noticiasRecentes.forEach(function(n) { %>
+            <a class="card" href="/noticias/<%= n.id %>" style="display:block; color:inherit; text-decoration:none;">
+              <span class="muted" style="font-size:12px;">
+                <%= n.createdAt ? new Date(n.createdAt).toLocaleDateString('pt-BR') : '' %>
+              </span>
+              <h3 style="font-size:16px; text-transform:none; margin-top:6px;"><%= n.titulo %></h3>
+            </a>
+          <% }) %>
+        </div>
+      <% } %>
     </div>
   </section>
 

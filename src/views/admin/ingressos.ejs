@@ -70,13 +70,13 @@
                   </span>
                 </td>
                 <td class="row-actions">
-                  <a href="/admin/ingressos/<%= i.id %>/editar" title="Editar">✏️</a>
+                  <span class="row-actions-inner">
+                    <a href="/admin/ingressos/<%= i.id %>/editar" class="btn btn-ghost btn-sm">Editar</a>
 
-                  <form action="/admin/ingressos/<%= i.id %>/excluir" method="POST" style="display:inline;" onsubmit="return confirm('Tem certeza que deseja excluir este ingresso?');">
-                    <button type="submit" class="row-action-btn" title="Excluir" style="background:none; border:none; cursor:pointer; padding:0;">
-                      🗑️
-                    </button>
-                  </form>
+                    <form action="/admin/ingressos/<%= i.id %>/excluir" method="POST" style="display:inline;" onsubmit="return confirm('Tem certeza que deseja excluir este ingresso?');">
+                      <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
+                    </form>
+                  </span>
                 </td>
               </tr>
             <% }) %>

@@ -14,13 +14,8 @@ const PLANOS = {
     voo_supremo: { titulo: 'Sócio Torcedor - Voo Supremo', valor: 79.9 },
 };
 
-// Domínio público (túnel ngrok) que o Mercado Pago usa para devolver o torcedor
-// e para chamar o webhook. Trocar de túnel exige editar só esta constante.
 const BASE_URL = 'https://viewable-clique-avenue.ngrok-free.dev';
 
-// As páginas de retorno (sucesso/pendente/erro) são compartilhadas por dois fluxos de
-// pagamento diferentes — assinatura de plano e compra de ingresso — por isso o texto
-// varia conforme a query string ?tipo= que vai nas back_urls de cada Preference.
 const RETORNOS = {
     plano: {
         sucesso: {
@@ -161,8 +156,6 @@ exports.criarPagamentoIngresso = async (req, res) => {
             });
         }
 
-        // O desconto é sempre recalculado no servidor a partir do plano do sócio
-        // logado — nunca confiar em um valor vindo do front-end.
         let desconto = 0;
         const socio = await SocioTorcedor.findOne({ where: { usuarioId, status: 'ativo' } });
         if (socio) {
@@ -240,8 +233,6 @@ exports.webhook = async (req, res) => {
                 await pagamento.save();
             }
 
-            // Mesma notification_url atende compra de plano e de ingresso — só uma
-            // das duas buscas abaixo encontra algo, dependendo da preferência.
             const compra = await IngressoCompra.findOne({
                 where: { mp_preference_id: paymentInfo.preference_id },
             });
@@ -251,16 +242,12 @@ exports.webhook = async (req, res) => {
                 compra.mp_payment_id = paymentInfo.id;
                 compra.status = aprovado ? 'aprovado' : paymentInfo.status;
 
-                // O Mercado Pago pode reenviar a mesma notificação mais de uma vez;
-                // sem essa guarda o estoque seria debitado em dobro a cada reenvio.
                 if (aprovado && !jaEstavaAprovado) {
                     await Ingresso.increment(
                         { quantidadeVendida: compra.quantidade },
                         { where: { id: compra.ingressoId } }
                     );
 
-                    // Um QR é gerado por compra (não por unidade): cobre todas as
-                    // pessoas do pedido de uma vez, a portaria valida a compra inteira.
                     compra.hashQr = gerarHashQr();
                 }
                 await compra.save();
@@ -279,8 +266,6 @@ exports.webhook = async (req, res) => {
                             });
                         }
                     } catch (erroEmail) {
-                        // Falha no envio do e-mail não pode derrubar o webhook — o
-                        // pagamento já foi processado e o ingresso já existe no banco.
                         console.error('Erro ao enviar e-mail do ingresso:', erroEmail);
                     }
                 }

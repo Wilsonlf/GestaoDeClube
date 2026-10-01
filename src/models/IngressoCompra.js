@@ -46,7 +46,6 @@ const IngressoCompra = sequelize.define('IngressoCompra', {
     },
 
     status: {
-        // Status do PAGAMENTO no Mercado Pago: 'pendente' | 'aprovado' | outros retornados pela API.
         type: DataTypes.STRING,
         defaultValue: 'pendente'
     },
@@ -60,17 +59,12 @@ const IngressoCompra = sequelize.define('IngressoCompra', {
     },
 
     hashQr: {
-        // Token opaco (não é o payment id) gravado no QR Code enviado por e-mail.
-        // Gerado só quando o pagamento é aprovado (ver webhook em pagamentoController.js).
         type: DataTypes.STRING,
         allowNull: true,
         unique: true
     },
 
     statusCheckin: {
-        // Estado da ENTRADA na portaria, independente do status do pagamento acima:
-        // 'pendente' (ainda não passou na catraca) | 'utilizado' (já validado por um operador).
-        // Um QR cobre a compra inteira (todas as unidades de `quantidade`) — não há controle por assento.
         type: DataTypes.STRING,
         allowNull: false,
         defaultValue: 'pendente'
@@ -82,7 +76,6 @@ const IngressoCompra = sequelize.define('IngressoCompra', {
     },
 
     validadoPor: {
-        // Usuario (tipo 'portaria' ou 'admin') que bateu o QR ou confirmou pelo CPF.
         type: DataTypes.INTEGER,
         allowNull: true,
         references: {

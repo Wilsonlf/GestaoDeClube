@@ -10,12 +10,7 @@
 </head>
 <body>
 
-<div class="topbar">
-  <div class="wrap">
-    <span>Esporte Clube Águia Negra · Rio Brilhante, MS</span>
-    <span class="social"><a href="#">Instagram</a><a href="#">Facebook</a><a href="#">YouTube</a></span>
-  </div>
-</div>
+<%- include('partials/topbar') %>
 
 <%- include('partials/nav-publico', { active: 'estadio' }) %>
 
@@ -24,7 +19,7 @@
     <span class="eyebrow">O lar do Águia Negra</span>
     <h1 style="font-size:26px; margin-top:6px; margin-bottom:20px;">Estádio Ninho da Águia</h1>
 
-    <div class="stadium-photo" aria-hidden="true"></div>
+    <img src="/img/estadio.jpg" alt="Fachada do Estádio Iliê Vidal, o Ninho da Águia" class="stadium-photo" />
 
     <div class="stadium-meta">
       <div class="stadium-meta-item">

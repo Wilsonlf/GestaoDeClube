@@ -1,10 +1,6 @@
 const nodemailer = require('nodemailer');
 const QRCode = require('qrcode');
 
-// Envio de e-mail é opcional para rodar o projeto localmente: sem as variáveis
-// MAIL_HOST/MAIL_USER/MAIL_PASS no .env, o transportador não é criado e
-// enviarIngressoPorEmail() só loga um aviso e segue em frente — o webhook do
-// Mercado Pago não pode falhar por causa disso.
 function criarTransportador() {
     const { MAIL_HOST, MAIL_PORT, MAIL_USER, MAIL_PASS } = process.env;
 
@@ -22,9 +18,6 @@ function criarTransportador() {
 
 const transportador = criarTransportador();
 
-// Envia o QR Code do ingresso para o e-mail já cadastrado do comprador.
-// `compra` precisa vir com o hashQr já salvo; `ingresso` e `usuario` são os
-// models relacionados (partida/local/data e nome/email, respectivamente).
 async function enviarIngressoPorEmail({ usuario, ingresso, compra }) {
     if (!transportador) {
         console.warn('[email] MAIL_HOST/MAIL_USER/MAIL_PASS não configurados no .env — envio do QR do ingresso pulado.');

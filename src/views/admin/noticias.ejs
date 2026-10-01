@@ -21,8 +21,18 @@
           <h1>Notícias</h1>
           <p class="muted" style="font-size:13px; margin-top:4px;">Conteúdos publicados para a área pública</p>
         </div>
-        <a href="#" class="btn btn-primary">+ Nova notícia</a>
+        <a href="/admin/noticias/novo" class="btn btn-primary">+ Nova notícia</a>
       </div>
+
+      <form action="/admin/noticias" method="GET" class="toolbar" style="margin-bottom:16px;">
+        <input
+          type="search"
+          name="busca"
+          class="search-input"
+          placeholder="Buscar por título"
+          value="<%= typeof termo !== 'undefined' ? termo : '' %>"
+        />
+      </form>
 
       <div class="data-table-wrap">
         <table class="data-table">
@@ -38,7 +48,15 @@
               <td class="emphasis"><%= n.titulo %></td>
               <td><%= n.conteudo.length > 60 ? n.conteudo.slice(0, 60) + '…' : n.conteudo %></td>
               <td><%= n.createdAt ? new Date(n.createdAt).toLocaleDateString('pt-BR') : '—' %></td>
-              <td class="row-actions"><a href="#" title="Editar">✏️</a><a href="#" title="Excluir">🗑️</a></td>
+              <td class="row-actions">
+                <span class="row-actions-inner">
+                  <a href="/admin/noticias/<%= n.id %>/editar" class="btn btn-ghost btn-sm">Editar</a>
+
+                  <form action="/admin/noticias/<%= n.id %>/excluir" method="POST" style="display:inline;" onsubmit="return confirm('Tem certeza que deseja excluir esta notícia?');">
+                    <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
+                  </form>
+                </span>
+              </td>
             </tr>
             <% }) %>
           </tbody>

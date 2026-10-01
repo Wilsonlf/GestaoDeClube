@@ -23,9 +23,6 @@ function apenasAdmin(req, res, next) {
     next();
 }
 
-// Portão de entrada do /admin: além de admin, deixa passar também o operador de
-// portaria — que só vai conseguir andar dentro das rotas /admin/checagem porque
-// as demais rotas de admin.routes.js exigem `apenasAdmin` individualmente.
 function apenasAdminOuPortaria(req, res, next) {
     if (req.usuario?.tipo !== 'admin' && req.usuario?.tipo !== 'portaria') {
         return res.status(403).send('Acesso restrito a administradores.');

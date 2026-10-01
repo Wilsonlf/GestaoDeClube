@@ -14,12 +14,22 @@ const Jogador = sequelize.define('Jogador', {
         allowNull: false
     },
 
+    numero: {
+        type: DataTypes.INTEGER
+    },
+
     posicao: {
         type: DataTypes.STRING
     },
 
     foto: {
         type: DataTypes.STRING
+    },
+
+    ordem: {
+        type: DataTypes.INTEGER,
+        allowNull: false,
+        defaultValue: 0
     }
 
 } , {

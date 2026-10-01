@@ -1,6 +1,4 @@
 <%
-  // 'portaria' só enxerga a aba de checagem — o restante do menu é escondido
-  // (as rotas em si também bloqueiam via `apenasAdmin`, isso aqui é só a UI).
   const ehPortaria = typeof usuarioTipo !== 'undefined' && usuarioTipo === 'portaria';
 %>
 <aside class="admin-sidebar">

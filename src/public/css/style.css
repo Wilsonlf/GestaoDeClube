@@ -139,19 +139,28 @@ input:focus-visible {
   cursor: pointer;
 }
 
+.nav-menu { display: contents; }
+.nav-menu .nav-links:first-of-type { order: 1; }
+.nav-crest { order: 2; }
+.nav-menu .nav-links:last-of-type { order: 3; }
+.nav-toggle { order: 4; }
+
 @media (max-width: 860px) {
   .nav-toggle { display: block; }
-  .nav-links {
+  .nav-menu {
+    display: block;
     position: absolute;
     top: 68px; left: 0; right: 0;
     background: var(--red-deep);
-    flex-direction: column;
-    gap: 0;
     max-height: 0;
     overflow: hidden;
     transition: max-height .25s ease;
   }
-  .nav-links.open { max-height: 400px; }
+  .nav-menu.open { max-height: 400px; }
+  .nav-links {
+    flex-direction: column;
+    gap: 0;
+  }
   .nav-links li { border-top: 1px solid rgba(255,255,255,.12); }
   .nav-links a { display: block; padding: 14px 24px; }
 }
@@ -178,9 +187,12 @@ input:focus-visible {
 .btn-ghost:hover { border-color: var(--gold); color: var(--gold); }
 .btn-secondary { background: var(--black-soft); color: var(--bone); border: 1px solid var(--line); }
 .btn-secondary:hover { border-color: var(--gold); color: var(--gold); }
+.btn-danger { background: transparent; color: var(--red-bright); border: 1px solid rgba(200,31,46,.4); }
+.btn-danger:hover { background: var(--red-bright); color: var(--bone); border-color: var(--red-bright); }
 .btn:active { transform: translateY(1px); }
 .btn:disabled { opacity: .5; cursor: not-allowed; transform: none; box-shadow: none; }
 .btn-block { width: 100%; }
+.btn-sm { padding: 6px 14px; font-size: 12px; letter-spacing: 0.02em; }
 
 .pennant-cut {
   position: relative;
@@ -232,6 +244,13 @@ input:focus-visible {
   padding: 24px;
 }
 
+a.card {
+  transition: border-color .15s ease;
+}
+a.card:hover {
+  border-color: var(--gold);
+}
+
 .eyebrow {
   font-family: var(--font-display);
   font-size: 12px;
@@ -245,11 +264,19 @@ input:focus-visible {
 
 .hero-grid {
   display: grid;
-  grid-template-columns: 1.3fr 1fr;
+  grid-template-columns: 7fr 3fr;
   gap: 28px;
-  align-items: start;
+  align-items: stretch;
 }
 @media (max-width: 780px) { .hero-grid { grid-template-columns: 1fr; } }
+
+.next-match {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+}
 
 .hero-highlight {
   background: linear-gradient(180deg, rgba(160,20,33,.35), rgba(11,11,13,0)), var(--panel);
@@ -261,31 +288,50 @@ input:focus-visible {
 .next-match .match-row {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 8px;
+  gap: 14px;
   margin-top: 14px;
-  text-align: center;
 }
-.match-team { display: flex; flex-direction: column; align-items: center; gap: 6px; font-size: 13px; }
 .crest-sm {
   width: 34px; height: 34px; border-radius: 50%;
   background: var(--red-bright); color: var(--bone);
   display: grid; place-items: center; font-size: 10px; font-family: var(--font-display);
+  flex: none;
 }
-.crest-sm--alt { background: var(--black-soft); border: 1px solid var(--line); }
 .match-date { display: flex; flex-direction: column; font-size: 13px; }
 
-.standings { width: 100%; border-collapse: collapse; font-size: 13px; }
-.standings th { text-align: left; color: var(--muted); font-weight: 500; padding: 6px 4px; border-bottom: 1px solid var(--line); }
-.standings td { padding: 7px 4px; border-bottom: 1px solid var(--line); }
-.standings tr.is-club td { color: var(--gold); font-weight: 600; }
-
-.squad-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 18px;
+.carousel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
-@media (max-width: 780px) { .squad-grid { grid-template-columns: repeat(2, 1fr); } }
+.carousel-track {
+  display: flex;
+  gap: 18px;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  scroll-behavior: smooth;
+  padding-bottom: 4px;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.carousel-track::-webkit-scrollbar { display: none; }
+.carousel-arrow {
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: var(--panel);
+  color: var(--bone);
+  font-size: 18px;
+  line-height: 1;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: border-color .15s ease, color .15s ease;
+}
+.carousel-arrow:hover { border-color: var(--gold); color: var(--gold); }
+
 .player-card {
   background: var(--panel);
   border: 1px solid var(--line);
@@ -293,6 +339,8 @@ input:focus-visible {
   overflow: hidden;
   text-align: center;
   padding-bottom: 14px;
+  flex: 0 0 200px;
+  scroll-snap-align: start;
 }
 .player-photo {
   aspect-ratio: 3/4;
@@ -422,11 +470,13 @@ input:focus-visible {
 .login-back a { color: var(--muted); }
 
 .stadium-photo {
-  height: 320px;
+  display: block;
+  width: 100%;
+  height: auto;
+  max-height: 600px;
+  margin: 0 auto;
   border-radius: var(--radius);
-  background:
-    linear-gradient(0deg, rgba(11,11,13,.9), rgba(11,11,13,.1)),
-    repeating-linear-gradient(90deg, #1e4d2b 0 40px, #235a32 40px 80px);
+  background: var(--black-soft);
   border: 1px solid var(--line);
 }
 .stadium-meta {
@@ -515,9 +565,6 @@ input:focus-visible {
 }
 .qty-input:focus { border-color: var(--gold); outline: none; }
 
-/* =========================================================
-   PAINEL ADMINISTRATIVO
-   ========================================================= */
 .admin-body { margin: 0; background: var(--black-soft); }
 .admin-shell { display: flex; min-height: 100vh; }
 
@@ -628,9 +675,11 @@ input:focus-visible {
 .data-table td { padding: 12px 16px; border-bottom: 1px solid var(--line); color: var(--bone-dim); }
 .data-table tr:last-child td { border-bottom: none; }
 .data-table td.emphasis { color: var(--bone); }
-.data-table .row-actions { display: flex; gap: 10px; }
-.data-table .row-actions a { color: var(--muted); }
-.data-table .row-actions a:hover { color: var(--gold); }
+.row-actions-inner {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
 
 .badge {
   display: inline-block;
@@ -720,10 +769,6 @@ input:focus-visible {
   font-size: 12px;
 }
 
-/* ==========================================================================
-   MÓDULO: Form Sócio
-   ========================================================================== */
-
 .mb-md { margin-bottom: 16px; }
 .mb-lg { margin-bottom: 24px; }
 
@@ -805,10 +850,6 @@ input:focus-visible {
   border: 1px solid var(--danger);
   color: var(--bone);
 }
-
-/* =========================
-   RETORNO DO PAGAMENTO
-   ========================= */
 
 .status-card { max-width: 420px; }
 

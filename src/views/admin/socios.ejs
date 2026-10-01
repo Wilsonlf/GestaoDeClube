@@ -71,13 +71,13 @@
                   <%= (s.dataAssociacao || s.createdAt) ? new Date(s.dataAssociacao || s.createdAt).toLocaleDateString('pt-BR') : '—' %>
                 </td>
                 <td class="row-actions">
-                  <a href="/admin/socios/<%= s.id %>/editar" title="Editar">✏️</a>
+                  <span class="row-actions-inner">
+                    <a href="/admin/socios/<%= s.id %>/editar" class="btn btn-ghost btn-sm">Editar</a>
 
-                  <form action="/admin/socios/<%= s.id %>/excluir" method="POST" style="display:inline;" onsubmit="return confirm('Tem certeza que deseja excluir este sócio e a conta de usuário associada?');">
-                    <button type="submit" class="row-action-btn" title="Excluir" style="background:none; border:none; cursor:pointer; padding:0;">
-                      🗑️
-                    </button>
-                  </form>
+                    <form action="/admin/socios/<%= s.id %>/excluir" method="POST" style="display:inline;" onsubmit="return confirm('Tem certeza que deseja excluir este sócio e a conta de usuário associada?');">
+                      <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
+                    </form>
+                  </span>
                 </td>
               </tr>
             <% }) %>

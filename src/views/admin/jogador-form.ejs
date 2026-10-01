@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= jogador ? 'Editar Jogador' : 'Novo Jogador' %> · Painel Administrativo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body class="admin-body">
+<div class="admin-shell">
+  <%- include('../partials/admin-sidebar', { active: 'elenco' }) %>
+
+  <main class="admin-main">
+    <%- include('../partials/admin-topbar') %>
+
+    <div class="admin-content">
+      <div class="admin-content-head mb-lg">
+        <div>
+          <h1><%= jogador ? 'Editar Jogador' : 'Novo Jogador' %></h1>
+          <p class="muted" style="font-size:13px; margin-top:4px;">
+            <%= jogador ? 'Atualize os dados do jogador' : 'Cadastre um novo jogador no elenco' %>
+          </p>
+        </div>
+        <a href="/admin/elenco" class="btn btn-secondary">← Voltar para a lista</a>
+      </div>
+
+      <% if (typeof erro !== 'undefined' && erro) { %>
+        <div class="form-alert form-alert--error mb-md">
+          <%= erro %>
+        </div>
+      <% } %>
+
+      <div class="form-panel">
+        <form action="<%= jogador && jogador.id ? '/admin/elenco/' + jogador.id : '/admin/elenco' %>" method="POST" enctype="multipart/form-data">
+
+          <div class="form-group mb-md">
+            <label for="nome" class="form-label">Nome *</label>
+            <input
+              type="text"
+              id="nome"
+              name="nome"
+              class="form-control"
+              value="<%= jogador ? jogador.nome : '' %>"
+              required
+            />
+          </div>
+
+          <div class="form-grid form-grid--2col mb-md">
+            <div class="form-group">
+              <label for="numero" class="form-label">Número da camisa</label>
+              <input
+                type="number"
+                id="numero"
+                name="numero"
+                class="form-control"
+                min="1"
+                value="<%= jogador && jogador.numero ? jogador.numero : '' %>"
+              />
+            </div>
+
+            <div class="form-group">
+              <label for="posicao" class="form-label">Posição</label>
+              <input
+                type="text"
+                id="posicao"
+                name="posicao"
+                class="form-control"
+                placeholder="Ex: Atacante, Goleiro..."
+                value="<%= jogador && jogador.posicao ? jogador.posicao : '' %>"
+              />
+            </div>
+          </div>
+
+          <div class="form-group mb-md">
+            <label for="ordem" class="form-label">Ordem de exibição</label>
+            <input
+              type="number"
+              id="ordem"
+              name="ordem"
+              class="form-control"
+              min="0"
+              placeholder="0"
+              value="<%= jogador && jogador.ordem ? jogador.ordem : '' %>"
+            />
+            <p class="muted" style="font-size:12px; margin-top:6px;">Controla a posição do jogador na lista e no carrossel do site — menor número aparece primeiro.</p>
+          </div>
+
+          <div class="form-group mb-lg">
+            <label for="foto" class="form-label">Foto</label>
+            <% if (jogador && jogador.foto) { %>
+              <img
+                src="<%= jogador.foto %>"
+                alt="Foto atual de <%= jogador.nome %>"
+                style="width:64px; height:64px; border-radius:50%; object-fit:cover; display:block; margin-bottom:10px;"
+              />
+            <% } %>
+            <input
+              type="file"
+              id="foto"
+              name="foto"
+              class="form-control"
+              accept="image/*"
+            />
+            <% if (jogador && jogador.foto) { %>
+              <p class="muted" style="font-size:12px; margin-top:6px;">Envie um novo arquivo apenas se quiser substituir a foto atual.</p>
+            <% } %>
+          </div>
+
+          <div class="form-actions">
+            <a href="/admin/elenco" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary">
+              <%= jogador ? 'Salvar Alterações' : 'Cadastrar Jogador' %>
+            </button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

@@ -6,7 +6,10 @@ require('./src/models/Noticia');
 require('./src/models/Ingresso');
 require('./src/models/IngressoCompra');
 require('./src/models/Pagamento');
+require('./src/models/PagamentoClube');
+require('./src/models/CategoriaPagamento');
 require('./src/models/Material');
+require('./src/models/RecuperacaoSenha');
 require('./src/models/Index');
 
 
@@ -23,6 +26,8 @@ const pagamentoRoutes = require('./src/routes/pagamento.routes');
 const verificarLogin = require('./src/middlewares/verificarLogin');
 const { autenticar, apenasAdminOuPortaria } = require('./src/middlewares/auth');
 const { identificarUsuario } = require('./src/middlewares/auth');
+const { agendarLimpezaComprasPendentes } = require('./src/utils/limparComprasPendentes');
+const { garantirCategoriasPadrao } = require('./src/controllers/categoriaPagamentoController');
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
@@ -48,9 +53,11 @@ app.use('/admin', autenticar, apenasAdminOuPortaria, (req, res, next) => {
 async function inicializarBanco() {
     try {
         await sequelize.sync();
+        await garantirCategoriasPadrao();
         app.listen(3000, () => {
             console.log('Servidor rodando na porta 3000');
         });
+        agendarLimpezaComprasPendentes();
     } catch (erro) {
         console.log('Erro ao conectar banco:', erro);
     }

@@ -19,10 +19,20 @@
   <section class="section" style="padding-top:32px; padding-bottom:32px;">
     <div class="wrap hero-grid">
       <div class="hero-highlight">
-        <span class="eyebrow">Último jogo</span>
-        <h1 style="font-size:26px; margin-top:6px;">Águia Negra estreia em casa com empate emocionante</h1>
-        <p class="muted" style="margin-top:10px;">Time do técnico Ederson Passos segurou o resultado nos minutos finais diante de mais de 2 mil torcedores no Ninho da Águia.</p>
-        <a href="#noticias" class="btn btn-ghost" style="margin-top:16px;">Ler matéria completa</a>
+        <% const destaque = noticiasRecentes && noticiasRecentes[0]; %>
+        <% if (destaque) { %>
+          <span class="eyebrow">Destaque</span>
+          <h1 style="font-size:26px; margin-top:6px;"><%= destaque.titulo %></h1>
+          <p class="muted" style="margin-top:10px;">
+            <%= destaque.conteudo.length > 180 ? destaque.conteudo.slice(0, 180) + '…' : destaque.conteudo %>
+          </p>
+          <a href="/noticias/<%= destaque.id %>" class="btn btn-ghost" style="margin-top:16px;">Ler matéria completa</a>
+        <% } else { %>
+          <span class="eyebrow">Notícias</span>
+          <h1 style="font-size:26px; margin-top:6px;">Acompanhe o Águia Negra</h1>
+          <p class="muted" style="margin-top:10px;">Fique por dentro das novidades do clube, jogos e bastidores.</p>
+          <a href="/noticias" class="btn btn-ghost" style="margin-top:16px;">Ver notícias</a>
+        <% } %>
       </div>
 
       <aside class="card next-match">

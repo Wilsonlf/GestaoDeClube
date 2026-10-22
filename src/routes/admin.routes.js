@@ -5,7 +5,10 @@ const adminController = require('../controllers/adminController');
 const socioController = require('../controllers/socioController');
 const ingressoController = require('../controllers/ingressoController');
 const checagemController = require('../controllers/checagemController');
-const noticiaController = require('../controllers/noticiaController');
+const pagamentoClubeController = require('../controllers/pagamentoClubeController');
+const categoriaPagamentoController = require('../controllers/categoriaPagamentoController');
+const relatorioController = require('../controllers/relatorioController');
+const noticiaController =require('../controllers/noticiaController');
 const jogadorController = require('../controllers/jogadorController');
 const { apenasAdmin } = require('../middlewares/auth');
 const { uploadFotoJogador } = require('../middlewares/upload');
@@ -61,10 +64,20 @@ router.get('/ingressos/:id/editar', apenasAdmin, ingressoController.formEditarIn
 router.post('/ingressos/:id', apenasAdmin, ingressoController.atualizarIngresso);
 router.post('/ingressos/:id/excluir', apenasAdmin, ingressoController.excluirIngresso);
 
-router.get('/relatorios', apenasAdmin, (req, res) => {
-    res.render('admin/relatorios', {
-    });
-});
+router.get('/pagamentos/categorias', apenasAdmin, categoriaPagamentoController.listarCategorias);
+router.post('/pagamentos/categorias', apenasAdmin, categoriaPagamentoController.criarCategoria);
+router.post('/pagamentos/categorias/:id', apenasAdmin, categoriaPagamentoController.atualizarCategoria);
+router.post('/pagamentos/categorias/:id/excluir', apenasAdmin, categoriaPagamentoController.excluirCategoria);
+
+router.get('/pagamentos', apenasAdmin, pagamentoClubeController.listarPagamentos);
+router.get('/pagamentos/novo', apenasAdmin, pagamentoClubeController.formNovoPagamento);
+router.post('/pagamentos', apenasAdmin, pagamentoClubeController.criarPagamento);
+router.get('/pagamentos/:id/editar', apenasAdmin, pagamentoClubeController.formEditarPagamento);
+router.post('/pagamentos/:id', apenasAdmin, pagamentoClubeController.atualizarPagamento);
+router.post('/pagamentos/:id/excluir', apenasAdmin, pagamentoClubeController.excluirPagamento);
+
+router.get('/relatorios/pdf', apenasAdmin, relatorioController.gerarPdf);
+router.get('/relatorios', apenasAdmin, relatorioController.exibirRelatorios);
 
 router.get('/usuarios', apenasAdmin, adminController.listarUsuarios);
 router.post('/usuarios/:id/tipo', apenasAdmin, adminController.atualizarTipo);

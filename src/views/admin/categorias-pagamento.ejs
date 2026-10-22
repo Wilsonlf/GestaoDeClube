@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Categorias de Pagamento · Painel Administrativo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body class="admin-body">
+<div class="admin-shell">
+  <%- include('../partials/admin-sidebar', { active: 'pagamentos' }) %>
+
+  <main class="admin-main">
+    <%- include('../partials/admin-topbar') %>
+
+    <div class="admin-content">
+      <div class="admin-content-head mb-lg">
+        <div>
+          <h1>Categorias de pagamento</h1>
+          <p class="muted" style="font-size:13px; margin-top:4px;">Cadastre, renomeie ou exclua as categorias usadas nos pagamentos do clube</p>
+        </div>
+        <a href="/admin/pagamentos" class="btn btn-secondary">← Voltar para pagamentos</a>
+      </div>
+
+      <% if (erro) { %>
+        <div class="form-alert form-alert--error mb-md"><%= erro %></div>
+      <% } %>
+
+      <div class="form-panel mb-lg">
+        <form action="/admin/pagamentos/categorias" method="POST" style="display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap;">
+          <div class="form-group" style="flex:1; min-width:220px;">
+            <label for="nome" class="form-label">Nova categoria *</label>
+            <input type="text" id="nome" name="nome" class="form-control" maxlength="60"
+                   placeholder="Ex.: Alimentação" value="<%= dados.nome || '' %>" required />
+          </div>
+          <button type="submit" class="btn btn-primary">+ Adicionar</button>
+        </form>
+      </div>
+
+      <div class="data-table-wrap">
+        <table class="data-table">
+          <thead>
+            <tr><th>Nome</th><th>Pagamentos</th><th>Ações</th></tr>
+          </thead>
+          <tbody>
+            <% if (categorias.length === 0) { %>
+            <tr><td colspan="3" class="muted">Nenhuma categoria cadastrada.</td></tr>
+            <% } %>
+            <% categorias.forEach(function(c) { %>
+            <% const usos = totalPorCategoria[c.nome] || 0; %>
+            <tr>
+              <td>
+                <form action="/admin/pagamentos/categorias/<%= c.id %>" method="POST" style="display:flex; gap:8px; align-items:center;">
+                  <input type="text" name="nome" class="form-control" maxlength="60" value="<%= c.nome %>" required aria-label="Nome da categoria" />
+                  <button type="submit" class="btn btn-ghost btn-sm">Salvar</button>
+                </form>
+              </td>
+              <td><%= usos %></td>
+              <td class="row-actions">
+                <span class="row-actions-inner">
+                  <% if (usos > 0) { %>
+                    <button type="button" class="btn btn-danger btn-sm" disabled title="Em uso em <%= usos %> pagamento(s)">Excluir</button>
+                  <% } else { %>
+                    <form action="/admin/pagamentos/categorias/<%= c.id %>/excluir" method="POST" style="display:inline;" data-nome="<%= c.nome %>" onsubmit="return confirm('Excluir a categoria &quot;' + this.dataset.nome + '&quot;?');">
+                      <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
+                    </form>
+                  <% } %>
+                </span>
+              </td>
+            </tr>
+            <% }) %>
+          </tbody>
+        </table>
+      </div>
+      <p class="muted" style="font-size:12px; margin-top:12px;">Renomear uma categoria atualiza todos os pagamentos que já a usam. Categorias em uso não podem ser excluídas.</p>
+    </div>
+  </main>
+</div>
+</body>
+</html>

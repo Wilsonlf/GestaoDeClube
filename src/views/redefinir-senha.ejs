@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Nova senha · Águia Negra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body class="login-body">
+
+<main class="login-screen">
+  <% if (token) { %>
+    <form class="login-card" id="redefinir-form" data-token="<%= token %>" novalidate>
+      <div class="nav-crest" style="width:64px; height:64px; font-size:20px; margin:0 auto 14px;">ECAN</div>
+      <h1 style="font-size:18px;">Criar nova senha</h1>
+      <p class="muted" style="margin:4px 0 22px; font-size:13px;">Use pelo menos 8 caracteres, com letras e números.</p>
+
+      <label class="field">
+        <span>Nova senha</span>
+        <div class="field-with-action">
+          <input type="password" id="senha" name="senha" placeholder="••••••••" required />
+          <button type="button" data-toggle-senha class="field-action">Mostrar</button>
+        </div>
+      </label>
+
+      <label class="field">
+        <span>Confirmar nova senha</span>
+        <input type="password" id="senha-confirmacao" name="senhaConfirmacao" placeholder="••••••••" required />
+      </label>
+
+      <p id="redefinir-feedback" class="muted" style="font-size:13px;" hidden></p>
+
+      <button type="submit" class="btn btn-primary btn-block" style="margin-top:6px;">Salvar nova senha</button>
+
+      <p class="login-back"><a href="/login">← Voltar ao login</a></p>
+    </form>
+  <% } else { %>
+    <div class="login-card">
+      <div class="nav-crest" style="width:64px; height:64px; font-size:20px; margin:0 auto 14px;">ECAN</div>
+      <h1 style="font-size:18px;">Link inválido ou expirado</h1>
+      <p class="muted" style="margin:4px 0 22px; font-size:13px;">Este link de redefinição já foi usado ou passou do prazo de 1 hora. Peça um novo para continuar.</p>
+      <a href="/esqueci-senha" class="btn btn-primary btn-block">Pedir novo link</a>
+      <p class="login-back"><a href="/login">← Voltar ao login</a></p>
+    </div>
+  <% } %>
+</main>
+
+<script src="/js/main.js"></script>
+</body>
+</html>

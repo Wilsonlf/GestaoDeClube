@@ -1,6 +1,23 @@
 const jwt = require('jsonwebtoken');
+const Usuario = require('../models/Usuario');
 
-function autenticar(req, res, next) {
+async function carregarUsuarioDoToken(token) {
+    let dados;
+    try {
+        dados = jwt.verify(token, process.env.JWT_SECRET);
+    } catch (erro) {
+        return null;
+    }
+
+    const usuario = await Usuario.findByPk(dados.id, {
+        attributes: ['id', 'nome', 'email', 'tipo'],
+    });
+    if (!usuario) return null;
+
+    return { id: usuario.id, nome: usuario.nome, email: usuario.email, tipo: usuario.tipo };
+}
+
+async function autenticar(req, res, next) {
     const token = req.cookies?.token;
 
     if (!token) {
@@ -8,11 +25,16 @@ function autenticar(req, res, next) {
     }
 
     try {
-        req.usuario = jwt.verify(token, process.env.JWT_SECRET);
+        const usuario = await carregarUsuarioDoToken(token);
+        if (!usuario) {
+            res.clearCookie('token');
+            return res.redirect('/login');
+        }
+        req.usuario = usuario;
         next();
     } catch (erro) {
-        res.clearCookie('token');
-        return res.redirect('/login');
+        console.error(erro);
+        res.status(500).send('Erro ao verificar sessão.');
     }
 }
 
@@ -46,7 +68,7 @@ function identificarUsuario(req, res, next) {
     next();
 }
 
-function autenticarApi(req, res, next) {
+async function autenticarApi(req, res, next) {
     const token = req.cookies?.token;
 
     if (!token) {
@@ -54,10 +76,16 @@ function autenticarApi(req, res, next) {
     }
 
     try {
-        req.usuario = jwt.verify(token, process.env.JWT_SECRET);
+        const usuario = await carregarUsuarioDoToken(token);
+        if (!usuario) {
+            res.clearCookie('token');
+            return res.status(401).json({ erro: 'Sessão expirada. Faça login novamente.' });
+        }
+        req.usuario = usuario;
         next();
     } catch (erro) {
-        return res.status(401).json({ erro: 'Sessão expirada. Faça login novamente.' });
+        console.error(erro);
+        res.status(500).json({ erro: 'Erro ao verificar sessão.' });
     }
 }
 

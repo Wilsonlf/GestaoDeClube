@@ -66,6 +66,83 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
+  const esqueciForm = document.querySelector("#esqueci-form");
+  if (esqueciForm) {
+    esqueciForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const feedback = document.querySelector("#esqueci-feedback");
+      const email = document.querySelector("#email").value;
+      const botao = esqueciForm.querySelector("button[type=submit]");
+
+      feedback.textContent = "Enviando...";
+      feedback.hidden = false;
+      botao.disabled = true;
+
+      try {
+        const resposta = await fetch("/esqueci-senha", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email })
+        });
+        const dados = await resposta.json();
+
+        if (!resposta.ok) {
+          feedback.textContent = dados.erro || "Não foi possível enviar o link.";
+          botao.disabled = false;
+          return;
+        }
+
+        feedback.textContent = dados.mensagem;
+      } catch (erro) {
+        feedback.textContent = "Erro de conexão. Tente novamente.";
+        botao.disabled = false;
+      }
+    });
+  }
+
+  const redefinirForm = document.querySelector("#redefinir-form");
+  if (redefinirForm) {
+    redefinirForm.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const feedback = document.querySelector("#redefinir-feedback");
+      const senha = document.querySelector("#senha").value;
+      const confirmacao = document.querySelector("#senha-confirmacao").value;
+      const botao = redefinirForm.querySelector("button[type=submit]");
+
+      feedback.hidden = false;
+      if (senha !== confirmacao) {
+        feedback.textContent = "As senhas não conferem.";
+        return;
+      }
+
+      feedback.textContent = "Salvando...";
+      botao.disabled = true;
+
+      try {
+        const resposta = await fetch("/redefinir-senha", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token: redefinirForm.dataset.token, senha })
+        });
+        const dados = await resposta.json();
+
+        if (!resposta.ok) {
+          feedback.textContent = dados.erro || "Não foi possível redefinir a senha.";
+          botao.disabled = false;
+          return;
+        }
+
+        feedback.textContent = "Senha alterada! Redirecionando para o login...";
+        setTimeout(() => {
+          window.location.href = dados.redirecionarPara || "/login";
+        }, 1200);
+      } catch (erro) {
+        feedback.textContent = "Erro de conexão. Tente novamente.";
+        botao.disabled = false;
+      }
+    });
+  }
+
   const cadastroForm = document.querySelector("#cadastro-form");
   if (cadastroForm) {
     cadastroForm.addEventListener("submit", async (e) => {

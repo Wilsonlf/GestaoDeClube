@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title><%= pagamento ? 'Editar Pagamento' : 'Novo Pagamento' %> · Painel Administrativo</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body class="admin-body">
+<div class="admin-shell">
+  <%- include('../partials/admin-sidebar', { active: 'pagamentos' }) %>
+
+  <main class="admin-main">
+    <%- include('../partials/admin-topbar') %>
+
+    <div class="admin-content">
+      <div class="admin-content-head mb-lg">
+        <div>
+          <h1><%= pagamento ? 'Editar Pagamento' : 'Novo Pagamento' %></h1>
+          <p class="muted" style="font-size:13px; margin-top:4px;">Registre uma despesa paga pelo clube</p>
+        </div>
+        <a href="/admin/pagamentos" class="btn btn-secondary">← Voltar para a lista</a>
+      </div>
+
+      <% if (typeof erro !== 'undefined' && erro) { %>
+        <div class="form-alert form-alert--error mb-md"><%= erro %></div>
+      <% } %>
+
+      <% const v = (typeof dados !== 'undefined' && dados) ? dados : (pagamento || {}); %>
+
+      <div class="form-panel">
+        <form action="<%= pagamento ? '/admin/pagamentos/' + pagamento.id : '/admin/pagamentos' %>" method="POST">
+
+          <div class="form-grid form-grid--2col mb-md">
+            <div class="form-group">
+              <label for="descricao" class="form-label">Descrição *</label>
+              <input type="text" id="descricao" name="descricao" class="form-control"
+                     placeholder="Aluguel do ônibus - jogo fora" value="<%= v.descricao || '' %>" required />
+            </div>
+
+            <div class="form-group">
+              <label for="categoria" class="form-label">Categoria *</label>
+              <% const catAtual = v.categoria || ''; %>
+              <select id="categoria" name="categoria" class="form-control" required>
+                <option value="" disabled <%= catAtual ? '' : 'selected' %>>Selecione…</option>
+                <% categorias.forEach(function(nome) { %>
+                  <option value="<%= nome %>" <%= catAtual === nome ? 'selected' : '' %>><%= nome %></option>
+                <% }) %>
+              </select>
+              <p class="muted" style="font-size:12px; margin-top:6px;">
+                Não achou a categoria? <a href="/admin/pagamentos/categorias">Cadastre uma nova</a>.
+              </p>
+            </div>
+          </div>
+
+          <div class="form-grid form-grid--2col mb-md">
+            <div class="form-group">
+              <label for="valor" class="form-label">Valor (R$) *</label>
+              <input type="number" id="valor" name="valor" class="form-control"
+                     step="0.01" min="0.01" placeholder="1500.00" value="<%= v.valor || '' %>" required />
+            </div>
+
+            <div class="form-group">
+              <label for="dataPagamento" class="form-label">Data do pagamento *</label>
+              <input type="date" id="dataPagamento" name="dataPagamento" class="form-control"
+                     value="<%= v.dataPagamento || '' %>" required />
+            </div>
+          </div>
+
+          <div class="form-group mb-lg">
+            <label for="observacao" class="form-label">Observação</label>
+            <textarea id="observacao" name="observacao" class="form-control" rows="3"><%= v.observacao || '' %></textarea>
+          </div>
+
+          <div class="form-actions">
+            <a href="/admin/pagamentos" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-primary"><%= pagamento ? 'Salvar Alterações' : 'Registrar Pagamento' %></button>
+          </div>
+
+        </form>
+      </div>
+    </div>
+  </main>
+</div>
+</body>
+</html>

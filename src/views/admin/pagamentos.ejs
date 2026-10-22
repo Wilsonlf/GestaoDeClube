@@ -19,25 +19,43 @@
       <div class="admin-content-head">
         <div>
           <h1>Pagamentos</h1>
-          <p class="muted" style="font-size:13px; margin-top:4px;">Registro financeiro do clube</p>
+          <p class="muted" style="font-size:13px; margin-top:4px;">Pagamentos realizados pelo clube · Total: R$ <%= Number(total).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) %></p>
         </div>
-        <a href="#" class="btn btn-primary">+ Novo pagamento</a>
+        <div style="display:flex; gap:10px;">
+          <a href="/admin/relatorios" class="btn btn-secondary">Ver relatórios</a>
+          <a href="/admin/pagamentos/categorias" class="btn btn-secondary">Categorias</a>
+          <a href="/admin/pagamentos/novo" class="btn btn-primary">+ Novo pagamento</a>
+        </div>
       </div>
 
       <div class="data-table-wrap">
         <table class="data-table">
           <thead>
-            <tr><th>Descrição</th><th>Valor</th><th>Data do pagamento</th></tr>
+            <tr><th>Descrição</th><th>Categoria</th><th>Valor</th><th>Data do pagamento</th><th>Ações</th></tr>
           </thead>
           <tbody>
             <% if (!pagamentos || pagamentos.length === 0) { %>
-            <tr><td colspan="3" class="muted">Nenhum pagamento registrado ainda.</td></tr>
+            <tr><td colspan="5" class="muted">Nenhum pagamento registrado ainda.</td></tr>
             <% } %>
             <% (pagamentos || []).forEach(function(p) { %>
             <tr>
-              <td class="emphasis"><%= p.descricao %></td>
+              <td class="emphasis">
+                <%= p.descricao %>
+                <% if (p.observacao) { %>
+                  <div class="muted" style="font-size:12px; margin-top:2px;"><%= p.observacao %></div>
+                <% } %>
+              </td>
+              <td><%= p.categoria %></td>
               <td>R$ <%= Number(p.valor).toLocaleString('pt-BR', { minimumFractionDigits: 2 }) %></td>
-              <td><%= p.data_pagamento ? new Date(p.data_pagamento).toLocaleDateString('pt-BR') : '—' %></td>
+              <td><%= p.dataPagamento ? p.dataPagamento.split('-').reverse().join('/') : '—' %></td>
+              <td class="row-actions">
+                <span class="row-actions-inner">
+                  <a href="/admin/pagamentos/<%= p.id %>/editar" class="btn btn-ghost btn-sm">Editar</a>
+                  <form action="/admin/pagamentos/<%= p.id %>/excluir" method="POST" style="display:inline;" onsubmit="return confirm('Tem certeza que deseja excluir este pagamento?');">
+                    <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
+                  </form>
+                </span>
+              </td>
             </tr>
             <% }) %>
           </tbody>

@@ -1,3 +1,4 @@
+const { Op } = require('sequelize');
 const { Preference, Payment } = require('mercadopago');
 const client = require('../config/mercadopago');
 const Pagamento = require('../models/Pagamento');
@@ -7,6 +8,7 @@ const { Usuario, SocioTorcedor } = require('../models/Index');
 const { obterDescontoIngresso } = require('../utils/socioDesconto');
 const { gerarHashQr } = require('../utils/qrToken');
 const { enviarIngressoPorEmail } = require('../utils/email');
+const { PRAZO_COMPRA_PENDENTE_MS } = require('../utils/limparComprasPendentes');
 
 const PLANOS = {
     ninho: { titulo: 'Sócio Torcedor - Ninho', valor: 19.9 },
@@ -174,9 +176,14 @@ exports.criarPagamentoIngresso = async (req, res) => {
             status: 'pendente',
         });
 
+        const expiraEm = new Date(Date.now() + PRAZO_COMPRA_PENDENTE_MS).toISOString();
+
         const preference = new Preference(client);
         const result = await preference.create({
             body: {
+                expires: true,
+                expiration_date_to: expiraEm,
+                date_of_expiration: expiraEm,
                 items: [
                     {
                         title: `Ingresso - ${ingresso.partida}`,
@@ -208,16 +215,24 @@ exports.criarPagamentoIngresso = async (req, res) => {
 
 exports.webhook = async (req, res) => {
     try {
-        const { type, data } = req.query.type ? req.query : req.body;
+        const type = req.query.type || req.query.topic || req.body?.type;
+        const paymentId = req.query['data.id'] || req.body?.data?.id || req.query.id;
 
-        if (type === 'payment') {
+        if (type === 'payment' && paymentId) {
             const payment = new Payment(client);
-            const paymentInfo = await payment.get({ id: data.id });
+            const paymentInfo = await payment.get({ id: paymentId });
             const aprovado = paymentInfo.status === 'approved';
 
-            const pagamento = await Pagamento.findOne({
-                where: { mp_preference_id: paymentInfo.preference_id },
-            });
+            const referencia = String(paymentInfo.external_reference || '');
+            const matchIngresso = referencia.match(/^ingresso_compra_(\d+)$/);
+            console.log(`Webhook: pagamento ${paymentInfo.id} status=${paymentInfo.status} ref=${referencia}`);
+
+            const pagamento = matchIngresso || !referencia
+                ? null
+                : await Pagamento.findOne({
+                    where: { socioTorcedorId: referencia },
+                    order: [['createdAt', 'DESC']],
+                });
 
             if (pagamento) {
                 pagamento.mp_payment_id = paymentInfo.id;
@@ -233,26 +248,33 @@ exports.webhook = async (req, res) => {
                 await pagamento.save();
             }
 
-            const compra = await IngressoCompra.findOne({
-                where: { mp_preference_id: paymentInfo.preference_id },
-            });
+            const compra = matchIngresso
+                ? await IngressoCompra.findByPk(matchIngresso[1])
+                : null;
 
             if (compra) {
-                const jaEstavaAprovado = compra.status === 'aprovado';
-                compra.mp_payment_id = paymentInfo.id;
-                compra.status = aprovado ? 'aprovado' : paymentInfo.status;
+                let aprovouAgora = false;
+                if (aprovado) {
+                    const [linhas] = await IngressoCompra.update(
+                        { status: 'aprovado', mp_payment_id: String(paymentInfo.id), hashQr: gerarHashQr() },
+                        { where: { id: compra.id, status: { [Op.ne]: 'aprovado' } } }
+                    );
+                    aprovouAgora = linhas > 0;
+                } else if (compra.status !== 'aprovado') {
+                    compra.mp_payment_id = String(paymentInfo.id);
+                    compra.status = paymentInfo.status;
+                    await compra.save();
+                }
 
-                if (aprovado && !jaEstavaAprovado) {
+                if (aprovouAgora) {
                     await Ingresso.increment(
                         { quantidadeVendida: compra.quantidade },
                         { where: { id: compra.ingressoId } }
                     );
-
-                    compra.hashQr = gerarHashQr();
+                    await compra.reload();
                 }
-                await compra.save();
 
-                if (aprovado && !jaEstavaAprovado) {
+                if (aprovouAgora) {
                     try {
                         const [usuarioComprador, ingressoComprado] = await Promise.all([
                             Usuario.findByPk(compra.usuarioId),

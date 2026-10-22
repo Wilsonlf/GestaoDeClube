@@ -21,71 +21,121 @@
           <h1>Relatórios</h1>
           <p class="muted" style="font-size:13px; margin-top:4px;">Análise consolidada do clube</p>
         </div>
-        <a href="#" class="btn btn-ghost">⬇ Exportar PDF</a>
+        <div style="display:flex; gap:10px;">
+          <a href="/admin/pagamentos" class="btn btn-secondary">Ver pagamentos</a>
+          <a href="/admin/relatorios/pdf?inicio=<%= periodo.inicio %>&fim=<%= periodo.fim %>" class="btn btn-primary">⬇ Exportar PDF</a>
+        </div>
       </div>
+
+      <form method="GET" action="/admin/relatorios" class="mb-md" style="display:flex; gap:12px; align-items:flex-end; flex-wrap:wrap;">
+        <div class="form-group">
+          <label for="inicio" class="form-label">De</label>
+          <input type="date" id="inicio" name="inicio" class="form-control" value="<%= periodo.inicio %>" />
+        </div>
+        <div class="form-group">
+          <label for="fim" class="form-label">Até</label>
+          <input type="date" id="fim" name="fim" class="form-control" value="<%= periodo.fim %>" />
+        </div>
+        <button type="submit" class="btn btn-secondary">Filtrar</button>
+      </form>
 
       <div class="kpi-grid">
         <div class="kpi-card">
           <div class="kpi-label">Sócios ativos</div>
-          <div class="kpi-value"><%= typeof totalSocios !== 'undefined' ? totalSocios : '1.245' %></div>
+          <div class="kpi-value"><%= totalSocios %></div>
         </div>
         <div class="kpi-card kpi-gold">
-          <div class="kpi-label">Receita de ingressos</div>
-          <div class="kpi-value">R$ <%= typeof receitaIngressos !== 'undefined' ? receitaIngressos : '179mil' %></div>
+          <div class="kpi-label">Receita total (planos + ingressos)</div>
+          <div class="kpi-value"><%= moeda(receitaTotal) %></div>
         </div>
         <div class="kpi-card">
-          <div class="kpi-label">Despesas (mês)</div>
-          <div class="kpi-value">R$ <%= typeof despesasMes !== 'undefined' ? despesasMes : '176mil' %></div>
+          <div class="kpi-label">Pagamentos do clube</div>
+          <div class="kpi-value"><%= moeda(totalDespesas) %></div>
         </div>
-        <div class="kpi-card kpi-danger">
-          <div class="kpi-label">Pendências</div>
-          <div class="kpi-value"><%= typeof pendencias !== 'undefined' ? pendencias : '2' %></div>
+        <div class="kpi-card <%= saldo < 0 ? 'kpi-danger' : '' %>">
+          <div class="kpi-label">Saldo do período</div>
+          <div class="kpi-value"><%= moeda(saldo) %></div>
         </div>
       </div>
 
       <div class="report-grid">
         <div class="card">
-          <h3 style="font-size:13px; text-transform:none; margin-bottom:6px;">Receita de ingressos (últimos meses)</h3>
-          <%
-          var receitaMeses = typeof receitaPorMes !== 'undefined' ? receitaPorMes : [
-            { mes: 'Set', valor: 28 }, { mes: 'Out', valor: 22 }, { mes: 'Nov', valor: 30 },
-            { mes: 'Dez', valor: 18 }, { mes: 'Jan', valor: 40 }, { mes: 'Fev', valor: 48 }
-          ];
-          var maxValor = Math.max.apply(null, receitaMeses.map(function(m){ return m.valor; }));
-          %>
-          <div class="bar-chart">
-            <% receitaMeses.forEach(function(m) { %>
-            <div class="bar">
-              <span class="stem" style="height:<%= Math.round((m.valor / maxValor) * 100) %>%;"></span>
-              <label><%= m.mes %></label>
+          <h3 style="font-size:13px; text-transform:none; margin-bottom:6px;">Receita por mês</h3>
+          <% if (porMes.length === 0) { %>
+            <p class="muted" style="font-size:13px;">Sem movimentação no período.</p>
+          <% } else { %>
+            <% var maxValor = Math.max.apply(null, porMes.map(function(m){ return m.receita; }).concat([1])); %>
+            <div class="bar-chart">
+              <% porMes.forEach(function(m) { %>
+              <div class="bar" title="<%= moeda(m.receita) %>">
+                <span class="stem" style="height:<%= Math.round((m.receita / maxValor) * 100) %>%;"></span>
+                <label><%= m.mes %></label>
+              </div>
+              <% }) %>
             </div>
-            <% }) %>
-          </div>
+          <% } %>
         </div>
 
         <div class="card">
           <h3 style="font-size:13px; text-transform:none; margin-bottom:6px;">Distribuição de sócios por plano</h3>
-          <%
-          var planos = typeof distribuicaoPlanos !== 'undefined' ? distribuicaoPlanos : [
-            { nome: 'Ninho', pct: 41, cor: '#a01421' },
-            { nome: 'Asas Negras', pct: 38, cor: '#c9a24a' },
-            { nome: 'Voo Supremo', pct: 21, cor: '#7d7b76' }
-          ];
-          var acumulado = 0;
-          var stops = planos.map(function(p) {
-            var inicio = acumulado;
-            acumulado += p.pct;
-            return p.cor + ' ' + inicio + '% ' + acumulado + '%';
-          }).join(', ');
+          <% if (distribuicaoPlanos.length === 0) { %>
+            <p class="muted" style="font-size:13px;">Nenhum sócio ativo.</p>
+          <% } else {
+            var acumulado = 0;
+            var stops = distribuicaoPlanos.map(function(p) {
+              var inicio = acumulado;
+              acumulado += p.pct;
+              return p.cor + ' ' + inicio + '% ' + acumulado + '%';
+            }).join(', ');
           %>
-          <div class="pie" style="background: conic-gradient(<%= stops %>);"></div>
-          <div class="pie-legend">
-            <% planos.forEach(function(p) { %>
-            <span><span class="dot" style="background:<%= p.cor %>;"></span><%= p.nome %> — <%= p.pct %>%</span>
-            <% }) %>
-          </div>
+            <div class="pie" style="background: conic-gradient(<%= stops %>);"></div>
+            <div class="pie-legend">
+              <% distribuicaoPlanos.forEach(function(p) { %>
+              <span><span class="dot" style="background:<%= p.cor %>;"></span><%= p.nome %> — <%= p.qtd %> (<%= p.pct %>%)</span>
+              <% }) %>
+            </div>
+          <% } %>
         </div>
       </div>
+
+      <div class="report-grid" style="margin-top:20px;">
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Partida</th><th>Vendidos</th><th>Utilizados</th><th>Receita</th></tr></thead>
+            <tbody>
+              <% if (ingressosPorPartida.length === 0) { %>
+              <tr><td colspan="4" class="muted">Nenhuma venda aprovada no período.</td></tr>
+              <% } %>
+              <% ingressosPorPartida.forEach(function(p) { %>
+              <tr>
+                <td class="emphasis"><%= p.partida %></td>
+                <td><%= p.vendidos %></td>
+                <td><%= p.utilizados %></td>
+                <td><%= moeda(p.receita) %></td>
+              </tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="data-table-wrap">
+          <table class="data-table">
+            <thead><tr><th>Pagamentos do clube por categoria</th><th>Total</th></tr></thead>
+            <tbody>
+              <% if (despesasPorCategoria.length === 0) { %>
+              <tr><td colspan="2" class="muted">Nenhum pagamento registrado no período.</td></tr>
+              <% } %>
+              <% despesasPorCategoria.forEach(function(c) { %>
+              <tr><td class="emphasis"><%= c.nome %></td><td><%= moeda(c.valor) %></td></tr>
+              <% }) %>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <% if (pendencias > 0) { %>
+        <p class="muted" style="font-size:12px; margin-top:16px;"><%= pendencias %> pagamento(s) de sócios/ingressos aguardando confirmação do Mercado Pago.</p>
+      <% } %>
     </div>
   </main>
 </div>

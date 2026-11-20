@@ -1,22 +1,44 @@
 const PagamentoClube = require('../models/PagamentoClube');
 const CategoriaPagamento = require('../models/CategoriaPagamento');
+const { lerValorMonetario, dataIsoValida } = require('../utils/entrada');
 
 async function listarNomesCategorias() {
     const categorias = await CategoriaPagamento.findAll({ order: [['nome', 'ASC']] });
     return categorias.map((c) => c.nome);
 }
 
-async function validarDados({ descricao, categoria, valor, dataPagamento }) {
-    if (!descricao || !descricao.trim() || !dataPagamento || valor === undefined || valor === '') {
-        return 'Preencha descrição, valor e data do pagamento.';
+
+async function validarDespesa(corpo) {
+    const descricao = String(corpo.descricao || '').trim();
+    const categoria = String(corpo.categoria || '');
+    const valor = lerValorMonetario(corpo.valor);
+    const dataPagamento = String(corpo.dataPagamento || '');
+
+    if (!descricao || !dataPagamento || String(corpo.valor ?? '').trim() === '') {
+        return { erro: 'Preencha descrição, valor e data do pagamento.' };
     }
-    if (!(Number(valor) > 0)) {
-        return 'O valor deve ser maior que zero.';
+    if (!Number.isFinite(valor)) {
+        return { erro: 'Valor inválido. Use números, por exemplo 1500,00.' };
+    }
+    if (valor <= 0) {
+        return { erro: 'O valor deve ser maior que zero.' };
+    }
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(dataPagamento) || !dataIsoValida(dataPagamento)) {
+        return { erro: 'Data do pagamento inválida.' };
     }
     if (!categoria || (await CategoriaPagamento.count({ where: { nome: categoria } })) === 0) {
-        return 'Categoria inválida.';
+        return { erro: 'Categoria inválida.' };
     }
-    return null;
+
+    return {
+        dados: {
+            descricao,
+            categoria,
+            valor: Number(valor.toFixed(2)),
+            dataPagamento,
+            observacao: String(corpo.observacao || '').trim() || null,
+        },
+    };
 }
 
 async function renderizarForm(res, { pagamento, dados, erro }) {
@@ -47,21 +69,13 @@ async function formNovoPagamento(req, res) {
 }
 
 async function criarPagamento(req, res) {
-    const { descricao, categoria, valor, dataPagamento, observacao } = req.body;
-
     try {
-        const erro = await validarDados(req.body);
+        const { erro, dados } = await validarDespesa(req.body);
         if (erro) {
             return renderizarForm(res, { pagamento: null, dados: req.body, erro });
         }
 
-        await PagamentoClube.create({
-            descricao: descricao.trim(),
-            categoria,
-            valor,
-            dataPagamento,
-            observacao: observacao || null
-        });
+        await PagamentoClube.create(dados);
         res.redirect('/admin/pagamentos');
     } catch (erro) {
         console.error(erro);
@@ -83,26 +97,18 @@ async function formEditarPagamento(req, res) {
 }
 
 async function atualizarPagamento(req, res) {
-    const { descricao, categoria, valor, dataPagamento, observacao } = req.body;
-
     try {
         const pagamento = await PagamentoClube.findByPk(req.params.id);
         if (!pagamento) {
             return res.status(404).send('Pagamento não encontrado');
         }
 
-        const erro = await validarDados(req.body);
+        const { erro, dados } = await validarDespesa(req.body);
         if (erro) {
             return renderizarForm(res, { pagamento, dados: req.body, erro });
         }
 
-        await pagamento.update({
-            descricao: descricao.trim(),
-            categoria,
-            valor,
-            dataPagamento,
-            observacao: observacao || null
-        });
+        await pagamento.update(dados);
         res.redirect('/admin/pagamentos');
     } catch (erro) {
         console.error(erro);

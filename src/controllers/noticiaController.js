@@ -1,9 +1,10 @@
 const { Op } = require('sequelize');
+const { textoDaBusca } = require('../utils/entrada');
 const Noticia = require('../models/Noticia');
 
 async function listarNoticias(req, res) {
     try {
-        const termo = (req.query.busca || '').trim();
+        const termo = textoDaBusca(req.query.busca);
 
         const where = termo
             ? { titulo: { [Op.like]: `%${termo}%` } }
@@ -26,7 +27,8 @@ function formNovaNoticia(req, res) {
 }
 
 async function criarNoticia(req, res) {
-    const { titulo, conteudo } = req.body;
+    const titulo = String(req.body.titulo || '').trim();
+    const conteudo = String(req.body.conteudo || '').trim();
 
     try {
         if (!titulo || !conteudo) {
@@ -59,7 +61,8 @@ async function formEditarNoticia(req, res) {
 
 async function atualizarNoticia(req, res) {
     const { id } = req.params;
-    const { titulo, conteudo } = req.body;
+    const titulo = String(req.body.titulo || '').trim();
+    const conteudo = String(req.body.conteudo || '').trim();
 
     try {
         const noticia = await Noticia.findByPk(id);
@@ -107,11 +110,11 @@ async function listarNoticiasPublico(req, res) {
     }
 }
 
-async function exibirNoticia(req, res) {
+async function exibirNoticia(req, res, next) {
     try {
-        const noticia = await Noticia.findByPk(req.params.id);
+        const noticia = /^\d+$/.test(req.params.id) ? await Noticia.findByPk(req.params.id) : null;
         if (!noticia) {
-            return res.status(404).send('Notícia não encontrada');
+            return next();
         }
         res.render('noticia', { noticia, active: 'noticias' });
     } catch (erro) {

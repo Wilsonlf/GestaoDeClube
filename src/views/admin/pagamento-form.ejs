@@ -58,8 +58,8 @@
           <div class="form-grid form-grid--2col mb-md">
             <div class="form-group">
               <label for="valor" class="form-label">Valor (R$) *</label>
-              <input type="number" id="valor" name="valor" class="form-control"
-                     step="0.01" min="0.01" placeholder="1500.00" value="<%= v.valor || '' %>" required />
+              <input type="text" inputmode="decimal" id="valor" name="valor" class="form-control"
+                     placeholder="1.500,00" value="<%= v.valor || '' %>" required />
             </div>
 
             <div class="form-group">

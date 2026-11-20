@@ -5,9 +5,8 @@ const Pagamento = require('../models/Pagamento');
 const PagamentoClube = require('../models/PagamentoClube');
 const Ingresso = require('../models/Ingresso');
 const IngressoCompra = require('../models/IngressoCompra');
-
-const NOMES_PLANOS = { ninho: 'Ninho', asas_negras: 'Asas Negras', voo_supremo: 'Voo Supremo' };
-const CORES_PLANOS = { ninho: '#a01421', asas_negras: '#c9a24a', voo_supremo: '#7d7b76' };
+const { obterPlanoDoSocio } = require('../utils/socioDesconto');
+const { STATUS_PENDENTES } = require('../config/statusPagamento');
 const MESES = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
 
 function moeda(valor) {
@@ -48,8 +47,8 @@ async function coletarDados({ inicio, fim }) {
             where: { dataPagamento: { [Op.between]: [inicio, fim] } },
             order: [['dataPagamento', 'ASC']]
         }),
-        Pagamento.count({ where: { status: 'pendente' } }),
-        IngressoCompra.count({ where: { status: 'pendente' } })
+        Pagamento.count({ where: { status: { [Op.in]: STATUS_PENDENTES } } }),
+        IngressoCompra.count({ where: { status: { [Op.in]: STATUS_PENDENTES } } })
     ]);
 
     const receitaPlanos = pagamentosSocios.reduce((s, p) => s + Number(p.valor), 0);
@@ -58,14 +57,15 @@ async function coletarDados({ inicio, fim }) {
 
     const contagem = {};
     socios.forEach((s) => {
-        const chave = String(s.plano || '').toLowerCase().replace(/\s+/g, '_');
+        const plano = obterPlanoDoSocio(s.plano);
+        const chave = plano ? plano.chave : String(s.plano || 'sem_plano');
         contagem[chave] = (contagem[chave] || 0) + 1;
     });
     const distribuicaoPlanos = Object.keys(contagem).map((chave) => ({
-        nome: NOMES_PLANOS[chave] || chave,
+        nome: obterPlanoDoSocio(chave)?.nome || chave,
         qtd: contagem[chave],
         pct: Math.round((contagem[chave] / socios.length) * 100),
-        cor: CORES_PLANOS[chave] || '#555555'
+        cor: obterPlanoDoSocio(chave)?.cor || '#555555'
     }));
 
     const porMesMapa = {};
@@ -253,4 +253,4 @@ async function gerarPdf(req, res) {
     }
 }
 
-module.exports = { exibirRelatorios, gerarPdf };
+module.exports = { exibirRelatorios, gerarPdf, coletarDados, moeda, dataISO };

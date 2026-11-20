@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const Usuario = require('../models/Usuario');
+const { versaoSenha } = require('../utils/sessao');
 
 async function carregarUsuarioDoToken(token) {
     let dados;
@@ -10,9 +11,9 @@ async function carregarUsuarioDoToken(token) {
     }
 
     const usuario = await Usuario.findByPk(dados.id, {
-        attributes: ['id', 'nome', 'email', 'tipo'],
+        attributes: ['id', 'nome', 'email', 'tipo', 'senha'],
     });
-    if (!usuario) return null;
+    if (!usuario || dados.sv !== versaoSenha(usuario.senha)) return null;
 
     return { id: usuario.id, nome: usuario.nome, email: usuario.email, tipo: usuario.tipo };
 }
@@ -52,20 +53,29 @@ function apenasAdminOuPortaria(req, res, next) {
     next();
 }
 
-function identificarUsuario(req, res, next) {
+async function identificarUsuario(req, res, next) {
     const token = req.cookies?.token;
+    req.usuario = null;
     res.locals.usuario = null;
+    res.locals.usuarioLogado = null;
 
-    if (token) {
-        try {
-            req.usuario = jwt.verify(token, process.env.JWT_SECRET);
-            res.locals.usuario = req.usuario;
-        } catch (erro) {
-            req.usuario = null;
-        }
+    if (!token) {
+        return next();
     }
 
-    next();
+    try {
+        const usuario = await carregarUsuarioDoToken(token);
+        if (usuario) {
+            req.usuario = usuario;
+            res.locals.usuario = usuario;
+            res.locals.usuarioLogado = usuario;
+        } else {
+            res.clearCookie('token');
+        }
+        next();
+    } catch (erro) {
+        next(erro);
+    }
 }
 
 async function autenticarApi(req, res, next) {

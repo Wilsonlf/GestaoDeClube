@@ -16,7 +16,7 @@ const SocioTorcedor = sequelize.define('SocioTorcedor', {
             model: 'usuarios',
             key: 'id'
         },
-        onDelete: 'SET NULL'
+        onDelete: 'CASCADE'
     },
 
     plano: {
@@ -32,6 +32,14 @@ const SocioTorcedor = sequelize.define('SocioTorcedor', {
     status: {
         type: DataTypes.STRING,
         defaultValue: 'ativo'
+    },
+
+    validoAte: {
+        type: DataTypes.DATE
+    },
+
+    lembreteEnviadoPara: {
+        type: DataTypes.DATE
     }
 
 }, {

@@ -61,7 +61,9 @@
               <strong class="ticket-price">R$ <%= i.valorComDesconto.toFixed(2).replace('.', ',') %></strong>
             </div>
 
-            <% if (i.esgotado) { %>
+            <% if (i.vendasEncerradas) { %>
+              <button class="btn btn-ghost" disabled>Vendas encerradas</button>
+            <% } else if (i.esgotado) { %>
               <button class="btn btn-ghost" disabled>Esgotado</button>
             <% } else if (typeof usuario !== 'undefined' && usuario) { %>
               <div style="display:flex; align-items:center; gap:8px;">
@@ -97,7 +99,7 @@
       <span>Patrocinadores</span>
       <strong>Sicredi</strong><strong>Airpon</strong><strong>Lojas MM</strong><strong>FFMS</strong>
     </div>
-    <div class="contact">contato@ecan.com.br<br />(67) 3000-0000</div>
+    <div class="contact">contato@ecan.com.br<br />(67) 3452 8085</div>
   </div>
   <div class="legal">© 2026 Esporte Clube Águia Negra — Fundado em 1971</div>
 </footer>
@@ -106,15 +108,21 @@
 
 <% if (typeof usuario !== 'undefined' && usuario) { %>
   <script>
-    const mp = new MercadoPago('APP_USR-5776e051-d303-4306-83eb-e275bb5a1e68');
+    const mp = new MercadoPago('<%= mpPublicKey %>');
 
     document.querySelectorAll('[data-comprar-ingresso]').forEach((botao) => {
       botao.addEventListener('click', async () => {
         const ingressoId = botao.dataset.ingressoId;
         const card = botao.closest('.ticket-card');
         const qtyInput = card.querySelector('[data-ingresso-qty]');
-        const quantidade = qtyInput ? Number(qtyInput.value) || 1 : 1;
+        const quantidade = qtyInput ? Number(qtyInput.value) : 1;
+        const maximo = qtyInput ? Number(qtyInput.max) : 1;
         const status = card.querySelector('.ticket-status');
+
+        if (!Number.isInteger(quantidade) || quantidade < 1 || quantidade > maximo) {
+          if (status) status.textContent = `Escolha uma quantidade de 1 a ${maximo}.`;
+          return;
+        }
 
         botao.disabled = true;
         botao.textContent = 'Carregando...';
@@ -125,7 +133,13 @@
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ ingressoId, quantidade }),
           });
-          const dados = await resposta.json();
+          const tipo = resposta.headers.get('content-type') || '';
+          const dados = tipo.includes('application/json') ? await resposta.json() : {};
+
+          if (resposta.status === 401) {
+            window.location.href = '/login';
+            return;
+          }
 
           if (!resposta.ok) {
             if (status) status.textContent = dados.erro || 'Não foi possível iniciar a compra.';
@@ -137,7 +151,7 @@
           botao.style.display = 'none';
           if (qtyInput) qtyInput.disabled = true;
 
-          mp.bricks().create('wallet', `wallet_ingresso_${ingressoId}`, {
+          await mp.bricks().create('wallet', `wallet_ingresso_${ingressoId}`, {
             initialization: { preferenceId: dados.preferenceId },
           });
         } catch (erro) {

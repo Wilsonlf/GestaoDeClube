@@ -1,39 +1,64 @@
+require('dotenv').config();
+const crypto = require('crypto');
 const bcrypt = require('bcrypt');
 
-const Usuario = require('./src/models/Usuario');
-const SocioTorcedor = require('./src/models/SocioTorcedor');
+const sequelize = require('./src/config/database');
+const { Usuario, SocioTorcedor } = require('./src/models/Index');
 const Noticia = require('./src/models/Noticia');
 const Jogador = require('./src/models/Jogador');
-const Pagamento = require('./src/models/Pagamento');
-const sequelize = require('./src/config/database');
+const PagamentoClube = require('./src/models/PagamentoClube');
+require('./src/models/Ingresso');
+require('./src/models/IngressoCompra');
+require('./src/models/Pagamento');
+require('./src/models/CategoriaPagamento');
+require('./src/models/Material');
+require('./src/models/RecuperacaoSenha');
+const { garantirCategoriasPadrao } = require('./src/controllers/categoriaPagamentoController');
+const { CUSTO_BCRYPT } = require('./src/utils/sessao');
+
+function senhaInicial(variavel) {
+    return process.env[variavel] || `${crypto.randomBytes(6).toString('base64url')}9a`;
+}
 
 async function seed() {
-    await sequelize.sync({ alter: true });
+    await sequelize.authenticate();
+    await sequelize.sync();
+    await garantirCategoriasPadrao();
 
-    if (await Usuario.count() === 0) {
-        const senhaHash = await bcrypt.hash('admin123', 10);
+    if (await Usuario.count({ where: { tipo: 'admin' } }) === 0) {
+        const senha = senhaInicial('SEED_ADMIN_SENHA');
         await Usuario.create({
             nome: 'Admin Master',
             email: 'admin@ecan.com.br',
-            senha: senhaHash
+            senha: await bcrypt.hash(senha, CUSTO_BCRYPT),
+            tipo: 'admin'
         });
-        console.log('Usuário administrador criado -> email: admin@ecan.com.br | senha: admin123');
-        console.log('IMPORTANTE: troque essa senha depois de logar pela primeira vez.');
+        console.log(`Administrador criado -> e-mail: admin@ecan.com.br | senha: ${senha}`);
+        console.log('Troque essa senha pelo "Esqueci minha senha" depois do primeiro acesso.');
     }
 
     if (await SocioTorcedor.count() === 0) {
-        const socio = await SocioTorcedor.create({
-            nome: 'Sócio Teste',
-            email: 'socio@teste.com',
-            senha: '123456',
-            cpf: '000.000.000-00',
-            telefone: '(67) 99999-0000'
+        const senha = senhaInicial('SEED_SOCIO_SENHA');
+        const [usuario, criado] = await Usuario.findOrCreate({
+            where: { email: 'socio@teste.com' },
+            defaults: {
+                nome: 'Sócio Teste',
+                senha: await bcrypt.hash(senha, CUSTO_BCRYPT),
+                cpf: '52998224725',
+                telefone: '(67) 99999-0000',
+                tipo: 'comum'
+            }
         });
-
-        await SocioTorcedor.bulkCreate([
-            { clienteId: cliente.id, plano: 'Mensal', dataAssociacao: new Date(), status: 'ativo' }
-        ]);
-        console.log('Sócios de teste criados.');
+        await SocioTorcedor.create({
+            usuarioId: usuario.id,
+            plano: 'ninho',
+            dataAssociacao: new Date(),
+            status: 'ativo'
+        });
+        await Usuario.update({ tipo: 'socio' }, { where: { id: usuario.id, tipo: 'comum' } });
+        console.log(criado
+            ? `Sócio de teste criado -> e-mail: socio@teste.com | senha: ${senha}`
+            : 'Sócio de teste vinculado ao usuário socio@teste.com que já existia.');
     }
 
     if (await Noticia.count() === 0) {
@@ -53,19 +78,20 @@ async function seed() {
         console.log('Jogadores de teste criados.');
     }
 
-    if (await Pagamento.count() === 0) {
-        await Pagamento.bulkCreate([
-            { descricao: 'Folha de pagamento', valor: 145000, data_pagamento: new Date('2026-02-05') },
-            { descricao: 'Fornecedor de materiais', valor: 12300, data_pagamento: new Date('2026-02-03') }
+    if (await PagamentoClube.count() === 0) {
+        await PagamentoClube.bulkCreate([
+            { descricao: 'Folha de pagamento', categoria: 'Salários', valor: 145000, dataPagamento: '2026-02-05' },
+            { descricao: 'Fornecedor de materiais', categoria: 'Material esportivo', valor: 12300, dataPagamento: '2026-02-03' }
         ]);
-        console.log('Pagamentos de teste criados.');
+        console.log('Despesas de teste criadas.');
     }
 
     console.log('Seed concluído!');
-    process.exit(0);
+    await sequelize.close();
 }
 
-seed().catch((erro) => {
+seed().catch(async (erro) => {
     console.error('Erro ao popular o banco:', erro);
-    process.exit(1);
+    process.exitCode = 1;
+    await sequelize.close().catch(() => {});
 });

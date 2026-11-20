@@ -1,31 +1,32 @@
 const { Op } = require('sequelize');
 const IngressoCompra = require('../models/IngressoCompra');
+const Pagamento = require('../models/Pagamento');
+const { STATUS_AGUARDANDO_PAGAMENTO } = require('../config/statusPagamento');
+const { PRAZO_COMPRA_PENDENTE_MS } = require('./estoqueIngresso');
 
-const PRAZO_COMPRA_PENDENTE_MS = 24 * 60 * 60 * 1000;
-const INTERVALO_LIMPEZA_MS = 60 * 60 * 1000;
-
-const STATUS_PENDENTES = ['pendente', 'pending'];
+const INTERVALO_LIMPEZA_MS = 10 * 60 * 1000;
 
 async function limparComprasPendentes() {
     try {
-        const limite = new Date(Date.now() - PRAZO_COMPRA_PENDENTE_MS);
-        const removidas = await IngressoCompra.destroy({
-            where: {
-                status: { [Op.in]: STATUS_PENDENTES },
-                createdAt: { [Op.lt]: limite }
-            }
-        });
-        if (removidas > 0) {
-            console.log(`Limpeza: ${removidas} compra(s) de ingresso pendente(s) há mais de 1 dia removida(s).`);
+        const where = {
+            status: { [Op.in]: STATUS_AGUARDANDO_PAGAMENTO },
+            createdAt: { [Op.lt]: new Date(Date.now() - PRAZO_COMPRA_PENDENTE_MS) }
+        };
+        const [[ingressos], [planos]] = await Promise.all([
+            IngressoCompra.update({ status: 'expirado' }, { where }),
+            Pagamento.update({ status: 'expirado' }, { where }),
+        ]);
+        if (ingressos + planos > 0) {
+            console.log(`Limpeza: ${ingressos} compra(s) de ingresso e ${planos} pagamento(s) de plano sem pagamento marcados como expirados.`);
         }
     } catch (erro) {
-        console.error('Erro ao limpar compras pendentes:', erro);
+        console.error('Erro ao expirar pagamentos pendentes:', erro);
     }
 }
 
 function agendarLimpezaComprasPendentes() {
     limparComprasPendentes();
-    setInterval(limparComprasPendentes, INTERVALO_LIMPEZA_MS);
+    setInterval(limparComprasPendentes, INTERVALO_LIMPEZA_MS).unref();
 }
 
-module.exports = { PRAZO_COMPRA_PENDENTE_MS, limparComprasPendentes, agendarLimpezaComprasPendentes };
+module.exports = { limparComprasPendentes, agendarLimpezaComprasPendentes };

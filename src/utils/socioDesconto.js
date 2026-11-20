@@ -1,10 +1,7 @@
-const DESCONTOS_POR_PLANO = {
-    ninho: 0.10,
-    asas_negras: 0.20,
-    voo_supremo: 0.30,
-};
+const { obterPlano } = require('../config/planos');
+const SocioTorcedor = require('../models/SocioTorcedor');
 
-const REGEX_ACENTOS = new RegExp('[' + String.fromCharCode(0x0300) + '-' + String.fromCharCode(0x036f) + ']', 'g');
+const REGEX_ACENTOS = /[̀-ͯ]/g;
 
 function normalizarPlano(plano) {
     if (!plano) return '';
@@ -17,8 +14,23 @@ function normalizarPlano(plano) {
         .replace(/\s+/g, '_');
 }
 
-function obterDescontoIngresso(plano) {
-    return DESCONTOS_POR_PLANO[normalizarPlano(plano)] || 0;
+function obterPlanoDoSocio(plano) {
+    return obterPlano(normalizarPlano(plano));
 }
 
-module.exports = { normalizarPlano, obterDescontoIngresso };
+function obterDescontoIngresso(plano) {
+    const info = obterPlanoDoSocio(plano);
+    return info ? info.descontoIngresso : 0;
+}
+
+function aplicarDesconto(valor, desconto) {
+    return Number((Number(valor) * (1 - desconto)).toFixed(2));
+}
+
+async function descontoDoUsuario(usuarioId) {
+    if (!usuarioId) return 0;
+    const socio = await SocioTorcedor.findOne({ where: { usuarioId, status: 'ativo' } });
+    return socio ? obterDescontoIngresso(socio.plano) : 0;
+}
+
+module.exports = { normalizarPlano, obterPlanoDoSocio, obterDescontoIngresso, aplicarDesconto, descontoDoUsuario };

@@ -59,12 +59,11 @@
           <div class="form-grid form-grid--2col mb-lg">
             <div class="form-group">
               <label for="plano" class="form-label">Plano *</label>
-              <% const planoAtual = socio ? socio.plano : ''; %>
               <select id="plano" name="plano" class="form-control" required>
                 <option value="" disabled <%= !planoAtual ? 'selected' : '' %>>Selecione um plano</option>
-                <option value="Ninho" <%= planoAtual === 'Ninho' ? 'selected' : '' %>>Ninho</option>
-                <option value="Asas Negras" <%= planoAtual === 'Asas Negras' ? 'selected' : '' %>>Asas Negras</option>
-                <option value="Voo Supremo" <%= planoAtual === 'Voo Supremo' ? 'selected' : '' %>>Voo Supremo</option>
+                <% planos.forEach(function(p) { %>
+                  <option value="<%= p.chave %>" <%= planoAtual === p.chave ? 'selected' : '' %>><%= p.nome %></option>
+                <% }) %>
               </select>
             </div>
 

@@ -63,16 +63,33 @@
 
 <script>
 (function () {
-  const elReader = document.getElementById('reader');
   const btnIniciar = document.getElementById('btn-iniciar-camera');
   const btnParar = document.getElementById('btn-parar-camera');
   const elCameraErro = document.getElementById('camera-erro');
   const elResultado = document.getElementById('resultado');
   const elResultadoConteudo = document.getElementById('resultado-conteudo');
+  const btnBuscarCpf = document.getElementById('btn-buscar-cpf');
+  const elCpfBusca = document.getElementById('cpf-busca');
+  const elListaCpf = document.getElementById('lista-cpf');
+
+  const INTERVALO_MESMO_QR_MS = 10000;
+  const MENSAGEM_SESSAO = 'Sua sessão expirou. Recarregue a página e faça login novamente.';
 
   let leitor = null;
   let escaneando = false;
-  let travaEnvio = false;
+  let enviando = false;
+  let ultimoHash = null;
+  let ultimoHashEm = 0;
+  const liberadosNestaTela = new Set();
+
+  function escapar(valor) {
+    return String(valor ?? '')
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
 
   function formatarDataHora(iso) {
     if (!iso) return '';
@@ -84,60 +101,69 @@
     elResultado.style.display = 'block';
   }
 
+  function badge(classe, texto) {
+    return `<span class="badge ${classe}">${escapar(texto)}</span>`;
+  }
+
   function cardIngresso(ingresso, statusHtml) {
     return `
       <div style="display:flex; flex-direction:column; gap:6px;">
         ${statusHtml}
-        <p><strong>Comprador:</strong> ${ingresso.comprador.nome} — CPF ${ingresso.comprador.cpf || 'não informado'}</p>
-        <p><strong>Partida:</strong> ${ingresso.partida.nome} · ${formatarDataHora(ingresso.partida.dataPartida)}</p>
-        <p><strong>Local:</strong> ${ingresso.partida.local}</p>
-        <p><strong>Quantidade:</strong> ${ingresso.quantidade}</p>
-        ${ingresso.dataCheckin ? `<p class="muted" style="font-size:12px;">Validado em ${formatarDataHora(ingresso.dataCheckin)}</p>` : ''}
+        <p><strong>Comprador:</strong> ${escapar(ingresso.comprador.nome)} — CPF ${escapar(ingresso.comprador.cpf || 'não informado')}</p>
+        <p><strong>Partida:</strong> ${escapar(ingresso.partida.nome)} · ${escapar(formatarDataHora(ingresso.partida.dataPartida))}</p>
+        <p><strong>Local:</strong> ${escapar(ingresso.partida.local)}</p>
+        <p><strong>Quantidade:</strong> ${escapar(ingresso.quantidade)}</p>
+        ${ingresso.dataCheckin ? `<p class="muted" style="font-size:12px;">Validado em ${escapar(formatarDataHora(ingresso.dataCheckin))}</p>` : ''}
       </div>
     `;
   }
 
-  async function validarPorHash(hash) {
-    const resposta = await fetch('/admin/checagem/validar', {
+  async function postarJson(url, corpo) {
+    const resposta = await fetch(url, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ hash }),
+      body: JSON.stringify(corpo),
     });
-    return tratarRespostaValidacao(resposta);
+    const tipo = resposta.headers.get('content-type') || '';
+    if (resposta.redirected || !tipo.includes('application/json')) {
+      throw new Error(MENSAGEM_SESSAO);
+    }
+    return { resposta, dados: await resposta.json() };
   }
 
-  async function validarManual(compraId) {
-    const resposta = await fetch('/admin/checagem/validar-manual', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ compraId }),
-    });
-    return tratarRespostaValidacao(resposta);
-  }
-
-  async function tratarRespostaValidacao(resposta) {
-    const dados = await resposta.json();
-
-    if (resposta.ok) {
-      mostrarResultado(cardIngresso(dados.ingresso, '<span class="badge badge-success">✓ Entrada liberada</span>'));
-      return;
+  async function validar(url, corpo) {
+    mostrarResultado(badge('badge-pending', 'Validando...'));
+    try {
+      const { resposta, dados } = await postarJson(url, corpo);
+      if (resposta.ok) {
+        mostrarResultado(cardIngresso(dados.ingresso, badge('badge-success', '✓ Entrada liberada')));
+      } else if (dados.ingresso) {
+        mostrarResultado(cardIngresso(dados.ingresso, badge('badge-danger', dados.erro)));
+      } else {
+        mostrarResultado(badge('badge-danger', dados.erro || 'Não foi possível validar o ingresso.'));
+      }
+      return resposta.ok;
+    } catch (erro) {
+      const mensagem = erro.message === MENSAGEM_SESSAO ? MENSAGEM_SESSAO : 'Erro de conexão. Tente novamente.';
+      mostrarResultado(badge('badge-danger', mensagem));
+      return false;
     }
-
-    if (dados.ingresso) {
-      mostrarResultado(cardIngresso(dados.ingresso, `<span class="badge badge-danger">${dados.erro}</span>`));
-      return;
-    }
-
-    mostrarResultado(`<span class="badge badge-danger">${dados.erro || 'Não foi possível validar o ingresso.'}</span>`);
   }
 
   async function aoLerQr(textoLido) {
-    if (travaEnvio) return;
-    travaEnvio = true;
+    const hash = textoLido.trim();
+    const agora = Date.now();
+    if (enviando || liberadosNestaTela.has(hash)) return;
+    if (hash === ultimoHash && agora - ultimoHashEm < INTERVALO_MESMO_QR_MS) return;
+
+    enviando = true;
+    ultimoHash = hash;
+    ultimoHashEm = agora;
     try {
-      await validarPorHash(textoLido.trim());
+      const ok = await validar('/admin/checagem/validar', { hash });
+      if (ok) liberadosNestaTela.add(hash);
     } finally {
-      setTimeout(() => { travaEnvio = false; }, 2500);
+      enviando = false;
     }
   }
 
@@ -176,43 +202,67 @@
     btnParar.disabled = true;
   });
 
-  const btnBuscarCpf = document.getElementById('btn-buscar-cpf');
-  const elCpfBusca = document.getElementById('cpf-busca');
-  const elListaCpf = document.getElementById('lista-cpf');
-
-  btnBuscarCpf.addEventListener('click', async () => {
+  async function buscarPorCpf() {
     const cpf = elCpfBusca.value.replace(/\D/g, '');
-    elListaCpf.innerHTML = '';
-    if (!cpf) return;
-
-    const resposta = await fetch('/admin/checagem/buscar-cpf', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ cpf }),
-    });
-    const dados = await resposta.json();
-
-    if (!resposta.ok) {
-      elListaCpf.innerHTML = `<span class="badge badge-danger">${dados.erro}</span>`;
+    if (cpf.length !== 11) {
+      elListaCpf.innerHTML = badge('badge-danger', 'Digite os 11 números do CPF.');
       return;
     }
 
-    elListaCpf.innerHTML = dados.ingressos.map((ingresso) => {
-      const jaUsado = ingresso.statusCheckin === 'utilizado';
-      return `
-        <div class="form-panel" style="margin-top:10px; padding:12px;">
-          <p><strong>${ingresso.partida.nome}</strong> · ${formatarDataHora(ingresso.partida.dataPartida)}</p>
-          <p class="muted" style="font-size:12px;">Quantidade: ${ingresso.quantidade}</p>
-          ${jaUsado
-            ? `<span class="badge badge-pending">Já utilizado em ${formatarDataHora(ingresso.dataCheckin)}</span>`
-            : `<button type="button" class="btn btn-primary" data-validar-compra="${ingresso.id}">Confirmar entrada</button>`}
-        </div>
-      `;
-    }).join('');
+    elListaCpf.innerHTML = badge('badge-pending', 'Buscando...');
+    btnBuscarCpf.disabled = true;
+    try {
+      const { resposta, dados } = await postarJson('/admin/checagem/buscar-cpf', { cpf });
+      if (!resposta.ok) {
+        elListaCpf.innerHTML = badge('badge-danger', dados.erro || 'Não foi possível buscar o CPF.');
+        return;
+      }
 
-    elListaCpf.querySelectorAll('[data-validar-compra]').forEach((botao) => {
-      botao.addEventListener('click', () => validarManual(botao.dataset.validarCompra));
-    });
+      elListaCpf.innerHTML = dados.ingressos.map((ingresso) => {
+        const jaUsado = ingresso.statusCheckin === 'utilizado';
+        return `
+          <div class="form-panel" style="margin-top:10px; padding:12px;">
+            <p><strong>${escapar(ingresso.partida.nome)}</strong> · ${escapar(formatarDataHora(ingresso.partida.dataPartida))}</p>
+            <p class="muted" style="font-size:12px;">Quantidade: ${escapar(ingresso.quantidade)}</p>
+            ${jaUsado
+              ? badge('badge-pending', `Já utilizado em ${formatarDataHora(ingresso.dataCheckin)}`)
+              : !ingresso.entradaLiberadaAgora
+                ? badge('badge-pending', 'Ingresso de outra partida (fora do horário de entrada)')
+                : `<button type="button" class="btn btn-primary" data-validar-compra="${escapar(ingresso.id)}">Confirmar entrada</button>`}
+          </div>
+        `;
+      }).join('');
+
+      elListaCpf.querySelectorAll('[data-validar-compra]').forEach((botao) => {
+        botao.addEventListener('click', async () => {
+          botao.disabled = true;
+          botao.textContent = 'Validando...';
+          const ok = await validar('/admin/checagem/validar-manual', { compraId: botao.dataset.validarCompra, cpf });
+          if (ok) {
+            botao.replaceWith(Object.assign(document.createElement('span'), {
+              className: 'badge badge-success',
+              textContent: '✓ Entrada liberada',
+            }));
+          } else {
+            botao.disabled = false;
+            botao.textContent = 'Confirmar entrada';
+          }
+        });
+      });
+    } catch (erro) {
+      const mensagem = erro.message === MENSAGEM_SESSAO ? MENSAGEM_SESSAO : 'Erro de conexão. Tente novamente.';
+      elListaCpf.innerHTML = badge('badge-danger', mensagem);
+    } finally {
+      btnBuscarCpf.disabled = false;
+    }
+  }
+
+  btnBuscarCpf.addEventListener('click', buscarPorCpf);
+  elCpfBusca.addEventListener('keydown', (evento) => {
+    if (evento.key === 'Enter') {
+      evento.preventDefault();
+      buscarPorCpf();
+    }
   });
 })();
 </script>

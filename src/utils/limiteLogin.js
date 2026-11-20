@@ -1,5 +1,6 @@
 const MAX_TENTATIVAS = 5;
 const JANELA_MS = 15 * 60 * 1000;
+const MAX_CHAVES = 10000;
 
 const tentativas = new Map();
 
@@ -16,30 +17,51 @@ function obterRegistro(chave) {
     return registro;
 }
 
-function minutosBloqueado(chave) {
+function removerVencidos() {
+    const agora = Date.now();
+    for (const [chave, registro] of tentativas) {
+        if (registro.expiraEm <= agora) tentativas.delete(chave);
+    }
+}
+
+function abrirEspaco() {
+    removerVencidos();
+    if (tentativas.size < MAX_CHAVES) return;
+    for (const [chave, registro] of tentativas) {
+        if (!registro.bloqueado) {
+            tentativas.delete(chave);
+            return;
+        }
+    }
+}
+
+function minutosBloqueado(chave, maximo = MAX_TENTATIVAS) {
     const registro = obterRegistro(chave);
-    if (!registro || registro.falhas < MAX_TENTATIVAS) return 0;
+    if (!registro || registro.falhas < maximo) return 0;
     return Math.ceil((registro.expiraEm - Date.now()) / 60000);
 }
 
-function registrarFalha(chave) {
+function registrarFalha(chave, maximo = MAX_TENTATIVAS) {
     const registro = obterRegistro(chave);
     if (registro) {
         registro.falhas += 1;
-    } else {
-        tentativas.set(chave, { falhas: 1, expiraEm: Date.now() + JANELA_MS });
+        if (registro.falhas >= maximo && !registro.bloqueado) {
+            registro.bloqueado = true;
+            registro.expiraEm = Date.now() + JANELA_MS;
+        }
+        return;
     }
+
+    if (tentativas.size >= MAX_CHAVES) {
+        abrirEspaco();
+    }
+    tentativas.set(chave, { falhas: 1, bloqueado: maximo <= 1, expiraEm: Date.now() + JANELA_MS });
 }
 
 function limparFalhas(chave) {
     tentativas.delete(chave);
 }
 
-setInterval(() => {
-    const agora = Date.now();
-    for (const [chave, registro] of tentativas) {
-        if (registro.expiraEm <= agora) tentativas.delete(chave);
-    }
-}, JANELA_MS).unref();
+setInterval(removerVencidos, JANELA_MS).unref();
 
 module.exports = { chaveLogin, minutosBloqueado, registrarFalha, limparFalhas, MAX_TENTATIVAS };

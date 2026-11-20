@@ -50,7 +50,7 @@
                 <td><%= c.quantidade %></td>
                 <td>
                   <span class="badge <%= c.status === 'aprovado' ? 'badge-success' : 'badge-pending' %>">
-                    <%= c.status %>
+                    <%= rotuloStatus(c.status) %>
                   </span>
                 </td>
                 <td>

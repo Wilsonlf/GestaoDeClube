@@ -1,6 +1,7 @@
 <div class="admin-topbar">
   <div class="admin-user">
-    <div class="avatar"><%= (usuarioLogado || 'A').charAt(0).toUpperCase() %></div>
-    <span><%= usuarioLogado || 'Admin' %></span>
+    <% const nomeTopbar = (usuarioLogado && usuarioLogado.nome) || 'Admin'; %>
+    <div class="avatar"><%= nomeTopbar.charAt(0).toUpperCase() %></div>
+    <span><%= nomeTopbar %></span>
   </div>
 </div>

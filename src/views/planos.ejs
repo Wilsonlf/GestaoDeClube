@@ -13,6 +13,10 @@
 </head>
 
 <body>
+  <%
+    const textoBotaoPlano = (chave) =>
+      (typeof planoAtual !== 'undefined' && planoAtual && planoAtual.chave === chave) ? 'Renovar plano' : 'Assine agora';
+  %>
 
   <%- include('partials/topbar') %>
 
@@ -25,26 +29,39 @@
         <h1 style="font-size:34px;">O Águia Negra não voa sozinha</h1>
         <p class="muted" style="max-width:520px; margin:10px auto 0;">Planos exclusivos para quem vive o clube dentro e
           fora do estádio.</p>
+        <p class="muted" style="max-width:520px; margin:8px auto 0; font-size:13px;">Cada pagamento vale 30 dias. Para continuar sócio, renove antes de vencer — os dias que faltam não se perdem.</p>
       </div>
     </section>
+
+    <% if (typeof planoAtual !== 'undefined' && planoAtual) { %>
+      <section class="section" style="padding-bottom:0;">
+        <div class="wrap center">
+          <% if (planoAtual.ativo) { %>
+            <p>Seu plano <strong><%= planoAtual.nome %></strong> está ativo<% if (planoAtual.validoAte) { %> até <strong><%= new Date(planoAtual.validoAte).toLocaleDateString('pt-BR') %></strong>. Renove pelo botão do seu plano para somar mais 30 dias<% } %>.</p>
+          <% } else { %>
+            <p>Seu plano <strong><%= planoAtual.nome %></strong> venceu em <strong><%= new Date(planoAtual.validoAte).toLocaleDateString('pt-BR') %></strong>. Renove para voltar a ter os benefícios de sócio.</p>
+          <% } %>
+        </div>
+      </section>
+    <% } %>
 
     <section class="section">
       <div class="wrap plans-grid">
 
         <article class="plan-card">
-          <h2>Plano Ninho</h2>
+          <h2>Plano <%= nomePlano('ninho') %></h2>
           <span class="crest-mini" aria-hidden="true">🦅</span>
           <p class="muted" style="margin:6px 0 14px;">Onde tudo começa</p>
-          <div class="plan-price">R$ 19,90<span>/mês</span></div>
+          <div class="plan-price"><%= precoPlano('ninho') %><span>/mês</span></div>
           <ul class="plan-list">
             <li>Carteirinha digital de sócio Águia</li>
             <li>Prioridade na compra de ingressos</li>
-            <li>10% de desconto em ingressos</li>
+            <li><%= descontoPlano('ninho') %> de desconto em ingressos</li>
             <li>5% de desconto na loja oficial</li>
             <li>Acesso a sorteios exclusivos</li>
           </ul>
           <% if (typeof usuario !=='undefined' && usuario) { %>
-            <button class="btn btn-primary btn-block" data-plano="ninho">Assine agora</button>
+            <button class="btn btn-primary btn-block" data-plano="ninho"><%= textoBotaoPlano('ninho') %></button>
             <div id="wallet_ninho" style="margin-top:10px;"></div>
             <% } else { %>
               <a href="/login" class="btn btn-primary btn-block">Assine agora</a>
@@ -53,18 +70,18 @@
 
         <article class="plan-card plan-card--featured">
           <span class="plan-badge">Mais popular</span>
-          <h2>Plano Asas Negras</h2>
+          <h2>Plano <%= nomePlano('asas_negras') %></h2>
           <span class="crest-mini" aria-hidden="true">🦅</span>
           <p class="muted" style="margin:6px 0 14px;">Para quem voa junto com o time</p>
-          <div class="plan-price">R$ 39,90<span>/mês</span></div>
+          <div class="plan-price"><%= precoPlano('asas_negras') %><span>/mês</span></div>
           <ul class="plan-list">
             <li>Todos os benefícios do Plano Ninho</li>
-            <li>20% de desconto em ingressos</li>
+            <li><%= descontoPlano('asas_negras') %> de desconto em ingressos</li>
             <li>15% de desconto na loja oficial</li>
             <li>Conteúdos exclusivos (bastidores, pré-jogo, vestiário)</li>
           </ul>
           <% if (typeof usuario !=='undefined' && usuario) { %>
-            <button class="btn btn-gold btn-block" data-plano="asas_negras">Assine agora</button>
+            <button class="btn btn-gold btn-block" data-plano="asas_negras"><%= textoBotaoPlano('asas_negras') %></button>
             <div id="wallet_asas_negras" style="margin-top:10px;"></div>
             <% } else { %>
               <a href="/login" class="btn btn-gold btn-block">Assine agora</a>
@@ -72,20 +89,20 @@
         </article>
 
         <article class="plan-card">
-          <h2>Plano Voo Supremo</h2>
+          <h2>Plano <%= nomePlano('voo_supremo') %></h2>
           <span class="crest-mini" aria-hidden="true">🦅</span>
           <p class="muted" style="margin:6px 0 14px;">Para quem domina junto com o Águia Negra</p>
-          <div class="plan-price">R$ 79,90<span>/mês</span></div>
+          <div class="plan-price"><%= precoPlano('voo_supremo') %><span>/mês</span></div>
           <ul class="plan-list">
             <li>Todos os benefícios dos planos anteriores</li>
             <li>1 ingresso grátis por temporada</li>
-            <li>30% de desconto em ingressos</li>
+            <li><%= descontoPlano('voo_supremo') %> de desconto em ingressos</li>
             <li>25% de desconto na loja oficial</li>
             <li>Camisa oficial exclusiva do sócio</li>
             <li>Experiência anual (visita ao CT, estádio ou evento com o elenco)</li>
           </ul>
           <% if (typeof usuario !=='undefined' && usuario) { %>
-            <button class="btn btn-primary btn-block" data-plano="voo_supremo">Assine agora</button>
+            <button class="btn btn-primary btn-block" data-plano="voo_supremo"><%= textoBotaoPlano('voo_supremo') %></button>
             <div id="wallet_voo_supremo" style="margin-top:10px;"></div>
             <% } else { %>
               <a href="/login" class="btn btn-primary btn-block">Assine agora</a>
@@ -102,7 +119,7 @@
         <span>Patrocinadores</span>
         <strong>Sicredi</strong><strong>Airpon</strong><strong>Lojas MM</strong><strong>FFMS</strong>
       </div>
-      <div class="contact">contato@ecan.com.br<br />(67) 3000-0000</div>
+      <div class="contact">contato@ecan.com.br<br />(67) 3452 8085</div>
     </div>
     <div class="legal">© 2026 Esporte Clube Águia Negra — Fundado em 1971</div>
   </footer>
@@ -110,36 +127,60 @@
   <script src="/js/main.js"></script>
 
   <% if (typeof usuario !=='undefined' && usuario) { %>
+    <div id="dados-mp" hidden data-chave="<%= mpPublicKey %>"></div>
     <script>
-      const mp = new MercadoPago('APP_USR-5776e051-d303-4306-83eb-e275bb5a1e68');
+      const mp = new MercadoPago(document.getElementById('dados-mp').dataset.chave);
+      const botoesPlano = document.querySelectorAll('[data-plano]');
 
-      document.querySelectorAll('[data-plano]').forEach(botao => {
+      function mostrarErroPlano(plano, mensagem) {
+        const destino = document.getElementById(`wallet_${plano}`);
+        destino.innerHTML = '';
+        const aviso = document.createElement('p');
+        aviso.className = 'muted';
+        aviso.style.fontSize = '13px';
+        aviso.textContent = mensagem;
+        destino.appendChild(aviso);
+      }
+
+      botoesPlano.forEach(botao => {
         botao.addEventListener('click', async () => {
           const plano = botao.dataset.plano;
-          botao.disabled = true;
+          const textoOriginal = botao.textContent;
+          botoesPlano.forEach(b => { b.disabled = true; });
           botao.textContent = 'Carregando...';
 
           try {
-            const res = await fetch('/pagamento/criar', {
+            const resposta = await fetch('/pagamento/criar', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
               body: JSON.stringify({ plano }),
             });
-            const { preferenceId } = await res.json();
+            const tipo = resposta.headers.get('content-type') || '';
+            const dados = tipo.includes('application/json') ? await resposta.json() : {};
+
+            if (!resposta.ok || !dados.preferenceId) {
+              if (resposta.status === 401) {
+                window.location.href = '/login';
+                return;
+              }
+              throw new Error(dados.erro || 'Não foi possível iniciar o pagamento. Tente novamente.');
+            }
 
             botao.style.display = 'none';
-            mp.bricks().create('wallet', `wallet_${plano}`, {
-              initialization: { preferenceId },
+            await mp.bricks().create('wallet', `wallet_${plano}`, {
+              initialization: { preferenceId: dados.preferenceId },
             });
+            botoesPlano.forEach(b => { if (b !== botao) b.disabled = false; });
           } catch (erro) {
-            alert('Erro ao iniciar pagamento. Tente novamente.');
-            botao.disabled = false;
-            botao.textContent = 'Assine agora';
+            mostrarErroPlano(plano, erro.message || 'Erro de conexão. Tente novamente.');
+            botoesPlano.forEach(b => { b.disabled = false; });
+            botao.style.display = '';
+            botao.textContent = textoOriginal;
           }
         });
       });
     </script>
-    <% } %>
+  <% } %>
 </body>
 
 </html>

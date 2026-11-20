@@ -6,10 +6,11 @@ const RecuperacaoSenha = require('../models/RecuperacaoSenha');
 const { validarSenha } = require('../utils/validacaoCadastro');
 const { enviarRecuperacaoSenha } = require('../utils/email');
 const { minutosBloqueado, registrarFalha } = require('../utils/limiteLogin');
+const { CUSTO_BCRYPT } = require('../utils/sessao');
 
 const VALIDADE_TOKEN_MS = 60 * 60 * 1000;
 
-const APP_URL = (process.env.APP_URL || 'http://localhost:3000').replace(/\/+$/, '');
+const { APP_URL } = require('../config/ambiente');
 
 const RESPOSTA_GENERICA = 'Se este e-mail estiver cadastrado, você vai receber um link para redefinir a senha em instantes.';
 
@@ -94,7 +95,7 @@ exports.redefinir = async (req, res) => {
             return res.status(400).json({ erro: erroSenha });
         }
 
-        const senhaHash = await bcrypt.hash(String(senha), 10);
+        const senhaHash = await bcrypt.hash(String(senha), CUSTO_BCRYPT);
         await Usuario.update({ senha: senhaHash }, { where: { id: pedido.usuarioId } });
 
         await RecuperacaoSenha.destroy({ where: { usuarioId: pedido.usuarioId } });

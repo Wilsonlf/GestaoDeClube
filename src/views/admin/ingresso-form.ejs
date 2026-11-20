@@ -105,13 +105,12 @@
             <div class="form-group">
               <label for="valor" class="form-label">Valor (R$) *</label>
               <input
-                type="number"
+                type="text"
+                inputmode="decimal"
                 id="valor"
                 name="valor"
                 class="form-control"
-                step="0.01"
-                min="0.01"
-                placeholder="30.00"
+                placeholder="30,00"
                 value="<%= v.valor || '' %>"
                 required
               />
@@ -120,12 +119,11 @@
             <div class="form-group">
               <label for="quantidadeTotal" class="form-label">Quantidade à venda *</label>
               <input
-                type="number"
+                type="text"
+                inputmode="numeric"
                 id="quantidadeTotal"
                 name="quantidadeTotal"
                 class="form-control"
-                step="1"
-                min="<%= ingresso ? ingresso.quantidadeVendida : 0 %>"
                 placeholder="1500"
                 value="<%= v.quantidadeTotal || '' %>"
                 required

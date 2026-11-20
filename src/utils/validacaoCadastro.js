@@ -1,4 +1,10 @@
-const REGEX_EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/;
+const REGEX_EMAIL = /^[^\s@]+@(?:[^\s@.]+\.)+[^\s@.]{2,}$/;
+
+function formatarTelefone(digitos) {
+    if (!digitos) return null;
+    const meio = digitos.length === 11 ? 7 : 6;
+    return `(${digitos.slice(0, 2)}) ${digitos.slice(2, meio)}-${digitos.slice(meio)}`;
+}
 
 function somenteDigitos(valor) {
     return String(valor || '').replace(/\D/g, '');
@@ -20,7 +26,7 @@ function cpfValido(cpf) {
 
 function validarSenha(senha) {
     const senhaTexto = String(senha || '');
-    if (senhaTexto.length < 8 || senhaTexto.length > 72) {
+    if (senhaTexto.length < 8 || Buffer.byteLength(senhaTexto, 'utf8') > 72) {
         return 'A senha deve ter entre 8 e 72 caracteres.';
     }
     if (!/[A-Za-z]/.test(senhaTexto) || !/\d/.test(senhaTexto)) {
@@ -52,7 +58,7 @@ function validarCadastro({ nome, email, senha, cpf, telefone }) {
     if (!cpfValido(cpfDigitos)) {
         return { erro: 'CPF inválido.' };
     }
-    if (telefone && (telefoneDigitos.length < 10 || telefoneDigitos.length > 11)) {
+    if (telefone && (/[A-Za-z]/.test(String(telefone)) || telefoneDigitos.length < 10 || telefoneDigitos.length > 11)) {
         return { erro: 'Telefone inválido. Use DDD + número.' };
     }
 
@@ -62,7 +68,7 @@ function validarCadastro({ nome, email, senha, cpf, telefone }) {
             email: emailLimpo,
             senha: senhaTexto,
             cpf: cpfDigitos,
-            telefone: String(telefone || '').trim() || null,
+            telefone: formatarTelefone(telefoneDigitos),
         },
     };
 }

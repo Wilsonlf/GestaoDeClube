@@ -1,10 +1,21 @@
-const bcrypt = require('bcrypt');
 const { Op } = require('sequelize');
+const { textoDaBusca } = require('../utils/entrada');
 const { Usuario, SocioTorcedor } = require('../models/Index');
+const Pagamento = require('../models/Pagamento');
+const { listarPlanos } = require('../config/planos');
+const { normalizarPlano, obterPlanoDoSocio } = require('../utils/socioDesconto');
+const { marcarComoSocio, desmarcarComoSocio } = require('../utils/tipoUsuario');
+
+const STATUS_SOCIO = ['ativo', 'inativo', 'pendente'];
+
+function nomePlano(plano) {
+    const info = obterPlanoDoSocio(plano);
+    return info ? info.nome : (plano || '—');
+}
 
 async function listarSocios(req, res) {
     try {
-        const termo = (req.query.busca || '').trim();
+        const termo = textoDaBusca(req.query.busca);
 
         const whereUsuario = termo
             ? {
@@ -24,53 +35,87 @@ async function listarSocios(req, res) {
             order: [[Usuario, 'nome', 'ASC']]
         });
 
-        res.render('admin/socios', { socios, termo });
+        res.render('admin/socios', { socios, termo, nomePlano });
     } catch (erro) {
         console.error(erro);
         res.status(500).send('Erro ao carregar sócios');
     }
 }
 
+async function renderizarFormNovo(res, { dados = {}, erro = null } = {}) {
+    const sociosAtuais = await SocioTorcedor.findAll({ attributes: ['usuarioId'] });
+    const idsSocios = sociosAtuais.map(s => s.usuarioId).filter(Boolean);
+
+    const usuariosDisponiveis = await Usuario.findAll({
+        attributes: ['id', 'nome', 'email', 'cpf'],
+        where: {
+            id: { [Op.notIn]: idsSocios.length > 0 ? idsSocios : [0] }
+        },
+        order: [['nome', 'ASC']]
+    });
+
+    res.render('admin/socio-form', {
+        socio: null,
+        usuariosDisponiveis,
+        planos: listarPlanos(),
+        planoAtual: normalizarPlano(dados.plano),
+        dados,
+        erro
+    });
+}
+
 async function formNovoSocio(req, res) {
     try {
-        const sociosAtuais = await SocioTorcedor.findAll({ attributes: ['usuarioId'] });
-        const idsSocios = sociosAtuais.map(s => s.usuarioId);
-
-        const usuariosDisponiveis = await Usuario.findAll({
-            where: {
-                id: { [Op.notIn]: idsSocios.length > 0 ? idsSocios : [0] }
-            },
-            order: [['nome', 'ASC']]
-        });
-
-        res.render('admin/socio-form', {
-            socio: null,
-            usuariosDisponiveis,
-            dados: {},
-            erro: null
-        });
+        await renderizarFormNovo(res);
     } catch (erro) {
         console.error(erro);
         res.status(500).send('Erro ao carregar formulário de sócio');
     }
 }
 
-async function criarSocio(req, res) {
-    const { usuarioId, plano, status } = req.body;
+function validarSocio({ plano, status }) {
+    const chavePlano = normalizarPlano(plano);
+    if (!listarPlanos().some((p) => p.chave === chavePlano)) {
+        return { erro: 'Selecione um plano válido.' };
+    }
+    if (status !== undefined && status !== '' && !STATUS_SOCIO.includes(status)) {
+        return { erro: 'Status inválido.' };
+    }
+    return { dados: { plano: chavePlano, status: status || 'ativo' } };
+}
 
+async function criarSocio(req, res) {
     try {
-        if (!usuarioId || !plano) {
-            return formNovoSocio(req, res);
+        const usuarioId = Number(req.body.usuarioId);
+        const { erro, dados } = validarSocio(req.body);
+
+        if (!Number.isInteger(usuarioId) || usuarioId < 1) {
+            return renderizarFormNovo(res, { dados: req.body, erro: 'Selecione um usuário.' });
+        }
+        if (erro) {
+            return renderizarFormNovo(res, { dados: req.body, erro });
+        }
+
+        const usuario = await Usuario.findByPk(usuarioId, { attributes: ['id'] });
+        if (!usuario) {
+            return renderizarFormNovo(res, { dados: req.body, erro: 'Usuário não encontrado.' });
+        }
+
+        const jaSocio = await SocioTorcedor.findOne({ where: { usuarioId } });
+        if (jaSocio) {
+            return renderizarFormNovo(res, { dados: req.body, erro: 'Este usuário já é sócio. Edite o cadastro existente.' });
         }
 
         await SocioTorcedor.create({
             usuarioId,
-            plano,
+            plano: dados.plano,
             dataAssociacao: new Date(),
-            status: status || 'ativo'
+            status: dados.status
         });
 
-        await Usuario.update({ tipo: 'socio' }, { where: { id: usuarioId } });
+        if (dados.status === 'ativo') {
+            await marcarComoSocio(usuarioId);
+        }
 
         res.redirect('/admin/socios');
     } catch (erro) {
@@ -81,11 +126,20 @@ async function criarSocio(req, res) {
 
 async function formEditarSocio(req, res) {
     try {
-        const socio = await SocioTorcedor.findByPk(req.params.id, { include: [Usuario] });
+        const socio = await SocioTorcedor.findByPk(req.params.id, {
+            include: [{ model: Usuario, attributes: ['id', 'nome', 'email'] }]
+        });
         if (!socio || !socio.Usuario) {
             return res.status(404).send('Sócio não encontrado');
         }
-        res.render('admin/socio-form', { socio, usuariosDisponiveis: [], dados: null, erro: null });
+        res.render('admin/socio-form', {
+            socio,
+            usuariosDisponiveis: [],
+            planos: listarPlanos(),
+            planoAtual: normalizarPlano(socio.plano),
+            dados: null,
+            erro: null
+        });
     } catch (erro) {
         console.error(erro);
         res.status(500).send('Erro ao carregar sócio');
@@ -93,16 +147,34 @@ async function formEditarSocio(req, res) {
 }
 
 async function atualizarSocio(req, res) {
-    const { id } = req.params;
-    const { plano, status } = req.body;
-
     try {
-        const socio = await SocioTorcedor.findByPk(id);
+        const socio = await SocioTorcedor.findByPk(req.params.id, {
+            include: [{ model: Usuario, attributes: ['id', 'nome', 'email'] }]
+        });
         if (!socio) {
             return res.status(404).send('Sócio não encontrado');
         }
 
-        await socio.update({ plano, status: status || socio.status });
+        const { erro, dados } = validarSocio({ plano: req.body.plano, status: req.body.status || socio.status });
+        if (erro) {
+            return res.render('admin/socio-form', {
+                socio,
+                usuariosDisponiveis: [],
+                planos: listarPlanos(),
+                planoAtual: normalizarPlano(req.body.plano),
+                dados: req.body,
+                erro
+            });
+        }
+
+        await socio.update(dados);
+
+        if (dados.status === 'ativo') {
+            await marcarComoSocio(socio.usuarioId);
+        } else {
+            await desmarcarComoSocio(socio.usuarioId);
+        }
+
         res.redirect('/admin/socios');
     } catch (erro) {
         console.error(erro);
@@ -112,19 +184,19 @@ async function atualizarSocio(req, res) {
 
 async function excluirSocio(req, res) {
     try {
-        const { id } = req.params;
-        const socio = await SocioTorcedor.findByPk(id);
+        const socio = await SocioTorcedor.findByPk(req.params.id);
         if (!socio) {
             return res.status(404).send('Sócio não encontrado');
         }
 
-        const usuarioId = socio.usuarioId;
-        
-        await socio.destroy();
-
-        if (usuarioId) {
-            await Usuario.update({ tipo: 'comum' }, { where: { id: usuarioId } });
+        const pagamentos = await Pagamento.count({ where: { socioTorcedorId: socio.id } });
+        if (pagamentos > 0) {
+            return res.status(400).send('Este sócio tem pagamentos registrados e não pode ser excluído, para não apagar o histórico financeiro. Edite o cadastro e mude o status para Inativo.');
         }
+
+        const usuarioId = socio.usuarioId;
+        await socio.destroy();
+        await desmarcarComoSocio(usuarioId);
 
         res.redirect('/admin/socios');
     } catch (erro) {

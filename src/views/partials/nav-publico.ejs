@@ -16,6 +16,7 @@
         <li><a href="/ingressos"<%- marcar('ingressos') %>>Ingressos</a></li>
         <li><a href="/planos"<%- marcar('planos') %>>Sócio</a></li>
         <% if (usuarioLogado) { %>
+          <li><a href="/meus-ingressos"<%- marcar('meus-ingressos') %>>Meus ingressos</a></li>
           <li class="nav-user">
             <span><%= usuarioLogado.nome.split(' ')[0] %></span>
           </li>

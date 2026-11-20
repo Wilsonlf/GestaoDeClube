@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Meus ingressos · Águia Negra</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+
+<%- include('partials/topbar') %>
+
+<%- include('partials/nav-publico', { active: 'meus-ingressos' }) %>
+
+<main class="section">
+  <div class="wrap">
+    <span class="eyebrow">Meus ingressos</span>
+    <h1 style="font-size:26px; margin-top:6px;">Seus ingressos para o Ninho da Águia</h1>
+    <p class="muted" style="margin-top:8px;">
+      Apresente o QR Code na portaria, direto do celular. Ele também é enviado por e-mail quando o pagamento é aprovado.
+      Cada QR Code vale para todos os ingressos daquela compra e só pode ser usado uma vez.
+    </p>
+
+    <div class="tickets-grid" style="margin-top:28px;">
+      <% if (proximos.length === 0) { %>
+        <p class="muted">Você não tem ingressos para as próximas partidas. <a href="/ingressos">Ver partidas com ingressos à venda</a>.</p>
+      <% } %>
+
+      <% proximos.forEach(function(i) { %>
+        <article class="ticket-card">
+          <span class="eyebrow"><%= i.competicao || 'Partida' %></span>
+          <h3 style="font-size:16px; text-transform:none; margin-top:6px;"><%= i.partida %></h3>
+          <ul class="ticket-meta">
+            <li>📅 <%= i.dataPartida.toLocaleDateString('pt-BR') %> — <%= i.dataPartida.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }) %></li>
+            <li>📍 <%= i.local %></li>
+            <li>🎟️ <%= i.quantidade %> ingresso(s)</li>
+          </ul>
+
+          <% if (i.qr) { %>
+            <img class="ticket-qr" src="<%= i.qr %>" alt="QR Code do ingresso para <%= i.partida %>" />
+            <p class="muted" style="font-size:12px; text-align:center; margin-top:8px;">Aumente o brilho da tela para facilitar a leitura.</p>
+          <% } else if (i.utilizado) { %>
+            <p><span class="badge badge-success">Entrada já registrada</span></p>
+          <% } else { %>
+            <p><span class="badge badge-pending"><%= i.rotuloStatus %></span></p>
+            <p class="muted" style="font-size:12px; margin-top:8px;">O QR Code aparece aqui assim que o pagamento for aprovado.</p>
+          <% } %>
+        </article>
+      <% }) %>
+    </div>
+
+    <% if (anteriores.length > 0) { %>
+      <h2 style="font-size:18px; margin:40px 0 14px;">Partidas anteriores</h2>
+      <div class="tickets-grid">
+        <% anteriores.forEach(function(i) { %>
+          <article class="ticket-card">
+            <span class="eyebrow"><%= i.competicao || 'Partida' %></span>
+            <h3 style="font-size:16px; text-transform:none; margin-top:6px;"><%= i.partida %></h3>
+            <ul class="ticket-meta">
+              <li>📅 <%= i.dataPartida.toLocaleDateString('pt-BR') %></li>
+              <li>🎟️ <%= i.quantidade %> ingresso(s)</li>
+            </ul>
+            <p>
+              <span class="badge <%= i.utilizado ? 'badge-success' : 'badge-pending' %>">
+                <%= i.utilizado ? 'Entrada registrada' : 'Não utilizado' %>
+              </span>
+            </p>
+          </article>
+        <% }) %>
+      </div>
+    <% } %>
+  </div>
+</main>
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p class="muted" style="max-width:420px; font-size:13px;">Fundado em 1971, o Esporte Clube Águia Negra é o orgulho do Rio Brilhante.</p>
+    <div class="sponsors">
+      <span>Patrocinadores</span>
+      <strong>Sicredi</strong><strong>Airpon</strong><strong>Lojas MM</strong><strong>FFMS</strong>
+    </div>
+    <div class="contact">contato@ecan.com.br<br />(67) 3452 8085</div>
+  </div>
+  <div class="legal">© 2026 Esporte Clube Águia Negra — Fundado em 1971</div>
+</footer>
+
+<script src="/js/main.js"></script>
+</body>
+</html>

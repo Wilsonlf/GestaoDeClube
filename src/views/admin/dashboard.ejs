@@ -24,19 +24,19 @@
       <div class="kpi-grid">
         <div class="kpi-card">
           <div class="kpi-label">Sócios ativos</div>
-          <div class="kpi-value"><%= typeof totalSocios !== 'undefined' ? totalSocios : '1.245' %></div>
+          <div class="kpi-value"><%= totalSocios %></div>
         </div>
         <div class="kpi-card kpi-gold">
           <div class="kpi-label">Receita de ingressos (mês)</div>
-          <div class="kpi-value">R$ <%= typeof receitaIngressos !== 'undefined' ? receitaIngressos : '179mil' %></div>
+          <div class="kpi-value"><%= receitaIngressos %></div>
         </div>
         <div class="kpi-card">
           <div class="kpi-label">Despesas (mês)</div>
-          <div class="kpi-value">R$ <%= typeof despesasMes !== 'undefined' ? despesasMes : '176mil' %></div>
+          <div class="kpi-value"><%= despesasMes %></div>
         </div>
         <div class="kpi-card kpi-danger">
           <div class="kpi-label">Pendências de pagamento</div>
-          <div class="kpi-value"><%= typeof pendencias !== 'undefined' ? pendencias : '2' %></div>
+          <div class="kpi-value"><%= pendencias %></div>
         </div>
       </div>
 
@@ -47,25 +47,18 @@
             <table class="data-table">
               <thead><tr><th>Título</th><th>Data</th></tr></thead>
               <tbody>
-                <% (typeof noticiasRecentes !== 'undefined' ? noticiasRecentes : [
-                  { titulo: 'Águia Negra estreia em casa com empate emocionante', data: '03/02/2026' },
-                  { titulo: 'Reforço de peso assina contrato até 2027', data: '02/02/2026' },
-                  { titulo: 'Ingressos para próxima rodada já estão à venda', data: '30/01/2026' }
-                ]).forEach(function(n) { %>
+                <% if (noticiasRecentes.length === 0) { %>
+                <tr><td colspan="2" class="muted">Nenhuma notícia publicada ainda.</td></tr>
+                <% } %>
+                <% noticiasRecentes.forEach(function(n) { %>
                 <tr>
                   <td class="emphasis"><%= n.titulo %></td>
-                  <td><%= n.createdAt ? new Date(n.createdAt).toLocaleDateString('pt-BR') : (n.data || '—') %></td>
+                  <td><%= new Date(n.createdAt).toLocaleDateString('pt-BR') %></td>
                 </tr>
                 <% }) %>
               </tbody>
             </table>
           </div>
-        </div>
-
-        <div class="card">
-          <h3 style="font-size:13px; text-transform:none; margin-bottom:14px;">Próximos passos</h3>
-          <p class="muted" style="font-size:13px; line-height:1.6;">
-          </p>
         </div>
       </div>
     </div>

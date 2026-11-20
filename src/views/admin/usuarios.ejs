@@ -59,8 +59,7 @@
                       <td>
                         <form action="/admin/usuarios/<%= u.id %>/tipo" method="POST" class="tipo-form">
                           <select name="tipo" class="form-control">
-                            <option value="comum" <%= u.tipo === 'comum' ? 'selected' : '' %>>Comum</option>
-                            <option value="socio" <%= u.tipo === 'socio' ? 'selected' : '' %>>Sócio</option>
+                            <option value="torcedor" <%= (u.tipo === 'comum' || u.tipo === 'socio') ? 'selected' : '' %>>Torcedor</option>
                             <option value="portaria" <%= u.tipo === 'portaria' ? 'selected' : '' %>>Portaria</option>
                             <option value="admin" <%= u.tipo === 'admin' ? 'selected' : '' %>>Admin</option>
                           </select>

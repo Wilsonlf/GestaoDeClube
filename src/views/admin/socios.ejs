@@ -45,13 +45,14 @@
               <th>Plano</th>
               <th>Status</th>
               <th>Sócio desde</th>
+              <th>Válido até</th>
               <th>Ações</th>
             </tr>
           </thead>
           <tbody>
             <% if (!socios || socios.length === 0) { %>
               <tr>
-                <td colspan="8" class="muted">Nenhum sócio cadastrado ainda.</td>
+                <td colspan="9" class="muted">Nenhum sócio cadastrado ainda.</td>
               </tr>
             <% } %>
 
@@ -61,7 +62,7 @@
                 <td><%= (s.Usuario && s.Usuario.cpf) ? s.Usuario.cpf : '—' %></td>
                 <td><%= (s.Usuario && s.Usuario.telefone) ? s.Usuario.telefone : '—' %></td>
                 <td><%= (s.Usuario && s.Usuario.email) ? s.Usuario.email : '—' %></td>
-                <td><span class="badge"><%= s.plano || '—' %></span></td>
+                <td><span class="badge"><%= nomePlano(s.plano) %></span></td>
                 <td>
                   <span class="status-tag <%= s.status === 'ativo' ? 'status-ativo' : 'status-inativo' %>">
                     <%= s.status || 'ativo' %>
@@ -70,11 +71,12 @@
                 <td>
                   <%= (s.dataAssociacao || s.createdAt) ? new Date(s.dataAssociacao || s.createdAt).toLocaleDateString('pt-BR') : '—' %>
                 </td>
+                <td><%= s.validoAte ? new Date(s.validoAte).toLocaleDateString('pt-BR') : '—' %></td>
                 <td class="row-actions">
                   <span class="row-actions-inner">
                     <a href="/admin/socios/<%= s.id %>/editar" class="btn btn-ghost btn-sm">Editar</a>
 
-                    <form action="/admin/socios/<%= s.id %>/excluir" method="POST" style="display:inline;" onsubmit="return confirm('Tem certeza que deseja excluir este sócio e a conta de usuário associada?');">
+                    <form action="/admin/socios/<%= s.id %>/excluir" method="POST" style="display:inline;" onsubmit="return confirm('Remover o vínculo de sócio deste usuário? A conta de usuário continua existindo.');">
                       <button type="submit" class="btn btn-danger btn-sm">Excluir</button>
                     </form>
                   </span>

@@ -1,6 +1,5 @@
 const express = require('express');
 const router = express.Router();
-const authController = require('../controllers/authController');
 const adminController = require('../controllers/adminController');
 const socioController = require('../controllers/socioController');
 const ingressoController = require('../controllers/ingressoController');
@@ -10,30 +9,11 @@ const categoriaPagamentoController = require('../controllers/categoriaPagamentoC
 const relatorioController = require('../controllers/relatorioController');
 const noticiaController =require('../controllers/noticiaController');
 const jogadorController = require('../controllers/jogadorController');
+const dashboardController = require('../controllers/dashboardController');
 const { apenasAdmin } = require('../middlewares/auth');
 const { uploadFotoJogador } = require('../middlewares/upload');
 
-const SocioTorcedor = require('../models/SocioTorcedor');
-const Noticia = require('../models/Noticia');
-const Pagamento = require('../models/Pagamento');
-
-router.get('/dashboard', apenasAdmin, async (req, res) => {
-    try {
-        const totalSocios = await SocioTorcedor.count();
-        const noticiasRecentes = await Noticia.findAll({
-            order: [['createdAt', 'DESC']],
-            limit: 3
-        });
-
-        res.render('admin/dashboard', {
-            totalSocios,
-            noticiasRecentes
-        });
-    } catch (erro) {
-        console.error(erro);
-        res.status(500).send('Erro ao carregar o dashboard');
-    }
-});
+router.get('/dashboard', apenasAdmin, dashboardController.exibirDashboard);
 
 router.get('/noticias', apenasAdmin, noticiaController.listarNoticias);
 router.get('/noticias/novo', apenasAdmin, noticiaController.formNovaNoticia);
@@ -86,9 +66,5 @@ router.get('/checagem', checagemController.formChecagem);
 router.post('/checagem/validar', checagemController.validarPorHash);
 router.post('/checagem/buscar-cpf', checagemController.buscarPorCpf);
 router.post('/checagem/validar-manual', checagemController.validarManual);
-
-router.post('/cadastro', apenasAdmin, authController.cadastrar);
-router.post('/login', authController.login);
-router.get('/logout', authController.logout);
 
 module.exports = router;
